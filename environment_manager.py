@@ -5,6 +5,11 @@ class Manager:
     load_dotenv()
 
     def get_database_credentails(conn_type:str):
+        '''
+        Return dict for database connection credentials for either django 
+        settings or for psycopg2.connect kwargs
+        - conn_type: str - "postgres" / "settings"
+        '''
         if conn_type == 'postgres':
             return {
                 'dbname': os.environ.get('DB_NAME'),
