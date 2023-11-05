@@ -11,7 +11,7 @@ class Item(models.Model):
     )
     item_type = models.CharField(
         max_length=ModelsConfig.Length.ITEM_TYPE,
-        choices=(('S', 'S'), ('M', 'M'))
+        choices=(ModelsConfig.Choice.ITEM_TYPE)
     )
     year_released = models.IntegerField()
 
