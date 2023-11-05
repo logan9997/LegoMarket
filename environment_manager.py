@@ -8,13 +8,13 @@ class Manager:
         '''
         Return dict for database connection credentials for either django 
         settings or for psycopg2.connect kwargs
-        - conn_type: str - "postgres" / "settings"
+        - conn_type: str - "psycopg2" / "settings"
         '''
-        if conn_type == 'postgres':
+        if conn_type == 'psycopg2':
             return {
                 'dbname': os.environ.get('DB_NAME'),
                 'user': os.environ.get('DB_USER'),
-                'password': os.environ.get('DB_USER'),
+                'password': os.environ.get('DB_PASSWORD'),
                 'host': os.environ.get('DB_HOST'),
                 'port': os.environ.get('DB_PORT'),
             }
@@ -28,4 +28,4 @@ class Manager:
                 'PORT': os.environ.get('DB_PORT'),
             }
         else:
-            raise Exception(f'Invalid conn_type - ({conn_type}). conn_type must equal "postgres" or "settings"') 
+            raise Exception(f'Invalid conn_type - ({conn_type}). conn_type must equal "psycopg2" or "settings"') 
