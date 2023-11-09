@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 class Manager:
     load_dotenv()
 
-    def get_database_credentails(conn_type:str):
+    def get_database_credentails(conn_type:str) -> dict[str, str]:
         '''
         Return dict for database connection credentials for either django 
         settings or for psycopg2.connect kwargs
@@ -29,3 +29,11 @@ class Manager:
             }
         else:
             raise Exception(f'Invalid conn_type - ({conn_type}). conn_type must equal "psycopg2" or "settings"') 
+        
+    def get_oauth_credentials() -> dict[str, str]:
+        return {
+            'CONSUMER_KEY': os.environ.get('CONSUMER_KEY'), 
+            'CONSUMER_SECRET': os.environ.get('CONSUMER_SECRET'), 
+            'TOKEN_VALUE': os.environ.get('TOKEN_VALUE'), 
+            'TOKEN_SECRET': os.environ.get('TOKEN_SECRET')
+        }
