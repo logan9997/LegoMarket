@@ -26,7 +26,11 @@ class DB:
 
         return result 
     
-    def insert(self, sql, data=()):
+    def insert(self, sql, data=()) -> None:
+        self.cursor.execute(sql, data)
+        self.conn.commit()
+
+    def update(self, sql, data=()) -> None:
         self.cursor.execute(sql, data)
         self.conn.commit()
 
@@ -37,7 +41,14 @@ class DB:
         '''
         return self.select(sql,** kwargs)
     
-    def insert_price(self, data):
+    def get_item_ids(self):
+        sql = '''
+        SELECT item_id
+        FROM "App_item"
+        '''
+        return self.select(sql, flat=True)
+    
+    def insert_price(self, data) -> None:
         sql = '''
         INSERT INTO "App_price"(item_id, date, price_new, qty_new, price_used, qty_used)
         VALUES (%s, %s, %s, %s, %s, %s)
@@ -45,6 +56,13 @@ class DB:
         '''
         self.insert(sql, data)
 
+    def insert_item(self, data) -> None:
+        sql = '''
+        INSERT INTO "App_item"
+        VALUES (%s, %s, %s, %s)
+        ON CONFLICT (item_id) DO NOTHING
+        '''
+        self.insert(sql, data)
+
 if __name__ == '__main__':
-    a = DB().get_item_ids_types()
-    print(a)
+    pass
