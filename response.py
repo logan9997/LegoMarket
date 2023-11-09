@@ -14,8 +14,8 @@ class Response:
         json_data = json.loads(response.text)
 
         if json_data['meta']['code'] != 200:
-            print('UPDATE KEYS - https://www.bricklink.com/v2/api/register_consumer.page')
-            raise Exception(str(json_data))
+            exception_message = f'{str(json_data.get("meta"))}\nUPDATE KEYS - https://www.bricklink.com/v2/api/register_consumer.page'
+            raise Exception(exception_message)
         return json_data['data']
     
 
