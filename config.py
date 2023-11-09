@@ -1,3 +1,5 @@
+DATE_FORMAT = '%Y-%m-%d'
+
 class ModelsConfig:
 
     class Length:
