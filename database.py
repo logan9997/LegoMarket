@@ -8,26 +8,42 @@ class DB:
         self.conn = psycopg2.connect(**psql_credentials)
         self.cursor = self.conn.cursor()
 
-    def select(self, sql, data=(), fetchone=False, flat=False):
+    def select(self, sql, data=(), fetchone=False, flat=False, format=False):
         self.cursor.execute(sql, data)
-        if fetchone:
-            return self.cursor.fetchone() 
-        
         result = self.cursor.fetchall()
+        
+        if fetchone:
+            result = self.cursor.fetchone() 
+        
         if flat:
             return [col[0] for col in result]
+        
+        if format:
+            result = [
+                {col[0]: row[i] for i, col in enumerate(self.cursor.description)} 
+                for row in result
+            ]
+
         return result 
+    
+    def insert(self, sql, data=()):
+        self.cursor.execute(sql, data)
+        self.conn.commit()
 
-
-    def test(self):
+    def get_item_ids_types(self, **kwargs):
         sql = '''
-        select * from "App_item"
-        where item_name = %s 
+        SELECT item_id, item_type
+        FROM "App_item";
         '''
-        data = ('Anakin',)
-        return self.select(sql, data=data)
-
+        return self.select(sql,** kwargs)
+    
+    def insert_price(self, data):
+        sql = '''
+        INSERT INTO "App_price"(item_id, date, price_new, qty_new, price_used, qty_used)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        '''
+        self.insert(sql, data)
 
 if __name__ == '__main__':
-    test = DB().test()
-    print(test)
+    a = DB().get_item_ids_types()
+    print(a)
