@@ -42,6 +42,9 @@ class Price(models.Model):
         decimal_places=ModelsConfig.Decimal.DECIMAL_PLACE
     )
 
+    class Meta:
+        unique_together = ('item', 'date')
+
 
 class User(models.Model):
     user_id = models.AutoField(
