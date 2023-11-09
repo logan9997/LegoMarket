@@ -1,8 +1,11 @@
 from response import Response
 from database import DB
-from utils import item_type_convert
+from utils import item_type_convert, clean_html_codes
 from datetime import datetime
 from config import DATE_FORMAT
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+import time
 
 db = DB()
 response = Response()
@@ -33,17 +36,92 @@ class DataCollect:
                 data.append(price)
                 data.append(qty)
 
-            print(data)
             db.insert_price(data)
 
-if __name__ == '__main__':
-    data_collect = DataCollect()
-    valid_methods = [method for method in dir(data_collect) if method[0] != '_']
+    def update_items(self):
+        item_types = ['M', 'S']
+        stored_items = db.get_item_ids()
+        for item_type in item_types:
+            scraper = Scrape(item_type)
+            scraper.scrape_items()
+            item_ids = scraper.get_item_ids()
 
+            for item_id in  item_ids:
+                if item_id in stored_items:
+                    continue
+
+                sub_url = f'items/{item_type_convert(item_type)}/{item_id}'
+                response_data = response.get_response(sub_url)
+
+                item_name = response_data.get('name')
+                item_name = clean_html_codes(item_name)
+                year_released = response_data.get('year_released')
+
+                data = [item_id, item_name, item_type, year_released]
+                db.insert_item(data)
+
+class Scrape:
+
+    def __init__(self, item_type:str) -> None:
+        self.driver = webdriver.Firefox()
+        self.items_per_page = 50
+        self.item_type = item_type
+        self.item_ids = []
+
+    def get_url(self, page):
+        return f'https://www.bricklink.com/catalogList.asp?pg={page}&catString=65&catType={self.item_type}'
+
+    def click_cookies(self) -> None:
+        cookies_accept_button = self.driver.find_element(
+            By.XPATH,
+            '/html/body/div[3]/div/section/div/div[2]/div/section[1]/div[2]/div/button[2]'
+        )
+        cookies_accept_button.click()
+
+    def scrape_items(self):
+        url = self.get_url('1')
+        self.driver.get(url)
+        time.sleep(3)
+        self.click_cookies()
+        
+        pages = self.driver.find_element(
+            By.XPATH, 
+            '/html/body/div[2]/center/table/tbody/tr/td/table/tbody/tr[3]/td/div/div[2]/div[2]/b[3]'
+        ) 
+        pages = int(pages.text)
+
+        total_items = self.driver.find_element(
+            By.XPATH,
+            '/html/body/div[2]/center/table/tbody/tr/td/table/tbody/tr[3]/td/div/div[2]/div[2]/b[1]'
+        )
+        total_items = int(total_items.text)
+        
+        for page in range(pages+1):
+            items = 50
+            if page == pages:
+                items = total_items % self.items_per_page
+            for item in range(items):
+                item_container = self.driver.find_element(
+                    By.XPATH,
+                    f'/html/body/div[2]/center/table/tbody/tr/td/div/form/table[1]/tbody/tr/td/table/tbody/tr[{item+2}]'
+                )
+                item_id = item_container.find_element(By.TAG_NAME, 'a').text
+                self.item_ids.append(item_id)
+
+            url = self.get_url(page+1)
+            self.driver.get(url)
+
+    def get_item_ids(self):
+        return self.item_ids
+            
+
+if __name__ == '__main__':
+    valid_methods = [method for method in dir(DataCollect) if method[0] != '_']
     method = input('Call a method: ')
+
     while True:
         if method in valid_methods:
-            getattr(data_collect, method)()
+            getattr(DataCollect(), method)()
             break
  
         valid_methods_formatted = "\n".join(valid_methods)
