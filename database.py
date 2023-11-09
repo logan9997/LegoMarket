@@ -41,6 +41,7 @@ class DB:
         sql = '''
         INSERT INTO "App_price"(item_id, date, price_new, qty_new, price_used, qty_used)
         VALUES (%s, %s, %s, %s, %s, %s)
+        ON CONFLICT (item_id, date) DO NOTHING
         '''
         self.insert(sql, data)
 
