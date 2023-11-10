@@ -1,19 +1,21 @@
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import HttpResponse
 from django.views.generic import TemplateView
 from ..models import Item, Price
 from typing import Any
 from decimal import Decimal
+from ..forms import GraphMetricSelect
 from fuzzywuzzy import fuzz
 
 
 class ItemView(TemplateView):
     template_name = 'App/item/item.html'
 
-    def dispatch(self, request:HttpRequest, item_id:str, *args, **kwargs) -> HttpResponse:
+    def dispatch(self, request: HttpRequest, item_id, *args: Any, **kwargs: Any) -> HttpResponse:
         self.item_id = item_id
         self.title = f'Item/{self.item_id}'
         self.selected_graph_metric = 'price_new'
+        self.request = request
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
@@ -26,7 +28,8 @@ class ItemView(TemplateView):
             'price_used': self.get_current_metric('price_used'),
             'qty_new': self.get_current_metric('qty_new'),
             'qty_used': self.get_current_metric('qty_used'),
-            'similar_items': self.get_similar_items()
+            'similar_items': self.get_similar_items(),
+            'form':GraphMetricSelect
         })
         self.get_similar_items()
         return context
