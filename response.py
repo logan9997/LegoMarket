@@ -11,7 +11,6 @@ class Response:
         self.base_url = 'https://api.bricklink.com/api/store/v1/'
         self.daily_max_calls = 4999
         self.date_format = '%Y-%m-%d %H:%M:%S'
-        self.timeout_value = self.get_timeout()
         self.check_daily_calls_limit()
 
     def check_daily_calls_limit(self) -> None:
