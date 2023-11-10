@@ -49,7 +49,7 @@ class ItemView(TemplateView):
     def get_similar_items(self):
         threshold = 75
         selected_item_name = self.get_item_info().item_name
-        item_names = Item.objects.all().values_list('item_name', flat=True)
+        item_names = Item.objects.all().values_list('item_name', flat=True).exclude(item_name=selected_item_name)
         similar_items = [
             Item.objects.filter(item_name=item_name) 
             for item_name in item_names 
