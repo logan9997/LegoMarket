@@ -1,6 +1,6 @@
 from response import Response
 from database import DB
-from utils import item_type_convert, clean_html_codes
+from utils import item_type_convert, clean_html_codes, timer
 from datetime import datetime
 from config import DATE_FORMAT
 from selenium import webdriver
@@ -15,7 +15,7 @@ class DataCollect:
     def __init__(self) -> None:
         pass
 
-    def update_prices(self):
+    def update_prices(self) -> None:
         items:list[dict] = db.get_item_ids_types(format=True)
         for item in items:
             item_id = item['item_id']
@@ -38,7 +38,7 @@ class DataCollect:
 
             db.insert_price(data)
 
-    def update_items(self):
+    def update_items(self) -> None:
         item_types = ['M', 'S']
         stored_items = db.get_item_ids()
         for item_type in item_types:
@@ -68,7 +68,7 @@ class Scrape:
         self.item_type = item_type
         self.item_ids = []
 
-    def get_url(self, page):
+    def get_url(self, page) -> str:
         return f'https://www.bricklink.com/catalogList.asp?pg={page}&catString=65&catType={self.item_type}'
 
     def click_cookies(self) -> None:
@@ -78,7 +78,7 @@ class Scrape:
         )
         cookies_accept_button.click()
 
-    def scrape_items(self):
+    def scrape_items(self) -> None:
         url = self.get_url('1')
         self.driver.get(url)
         time.sleep(3)
@@ -111,11 +111,12 @@ class Scrape:
             url = self.get_url(page+1)
             self.driver.get(url)
 
-    def get_item_ids(self):
+    def get_item_ids(self) -> list[str]:
         return self.item_ids
             
 
-if __name__ == '__main__':
+@timer
+def main():
     valid_methods = [method for method in dir(DataCollect) if method[0] != '_']
     method = input('Call a method: ')
 
@@ -128,3 +129,6 @@ if __name__ == '__main__':
         print(f'Invalid method, Valid Methods below;\n{valid_methods_formatted}')
 
         method = input('\nCall a method: ')
+
+if __name__ == '__main__':
+    main()
