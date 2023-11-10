@@ -33,14 +33,8 @@ class Price(models.Model):
         max_digits=ModelsConfig.Decimal.MAX_DIGITS, 
         decimal_places=ModelsConfig.Decimal.DECIMAL_PLACE
     )
-    qty_used = models.DecimalField(
-        max_digits=ModelsConfig.Decimal.MAX_DIGITS, 
-        decimal_places=ModelsConfig.Decimal.DECIMAL_PLACE
-    )
-    qty_new = models.DecimalField(
-        max_digits=ModelsConfig.Decimal.MAX_DIGITS, 
-        decimal_places=ModelsConfig.Decimal.DECIMAL_PLACE
-    )
+    qty_used = models.IntegerField()
+    qty_new = models.IntegerField()
 
     class Meta:
         unique_together = ('item', 'date')
