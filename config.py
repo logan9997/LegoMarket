@@ -1,4 +1,5 @@
 DATE_FORMAT = '%Y-%m-%d'
+METRICS = ['price_new', 'price_used', 'qty_new', 'qty_used']
 
 class ModelsConfig:
 
