@@ -1,4 +1,5 @@
 import os
+import dotenv
 from dotenv import load_dotenv
 
 class Manager:
@@ -37,3 +38,9 @@ class Manager:
             'TOKEN_VALUE': os.environ.get('TOKEN_VALUE'), 
             'TOKEN_SECRET': os.environ.get('TOKEN_SECRET')
         }
+    
+    def update_value(key, new_value):
+        dotenv.set_key('.env', key, new_value)
+
+    def get_value(key):
+        return os.environ.get(key)
