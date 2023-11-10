@@ -13,7 +13,6 @@ class SignUpView(FormView):
             
     def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
         self.request = request
-        SignUp(request.POST)
         return super().post(request, *args, **kwargs)
     
     def form_valid(self, form: Any) -> HttpResponse:
