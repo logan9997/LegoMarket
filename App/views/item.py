@@ -1,5 +1,5 @@
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import HttpResponse
+from django.shortcuts import HttpResponse, redirect
 from django.views.generic import TemplateView
 from ..models import Item, Price
 from typing import Any
@@ -13,6 +13,8 @@ class ItemView(TemplateView):
 
     def dispatch(self, request: HttpRequest, item_id, *args: Any, **kwargs: Any) -> HttpResponse:
         self.item_id = item_id
+        if not self.is_item_id_valid():
+            return redirect('home')
         self.title = f'Item/{self.item_id}'
         self.selected_chart_metric = self.get_selected_chart_metric()
         self.request = request
@@ -34,6 +36,12 @@ class ItemView(TemplateView):
             'form':chartMetricSelect,
         })
         return context
+    
+    def is_item_id_valid(self) -> bool:
+        item_ids = Item.objects.all().values_list('item_id', flat=True)
+        if self.item_id in item_ids:
+            return True
+        return False
     
     def get_selected_chart_metric(self) -> str:
         return self.request.GET.get('metric_select', 'price_new')
