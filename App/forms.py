@@ -2,7 +2,7 @@ from django import forms
 from config import METRICS, ModelsConfig
 from .models import User
 
-class GraphMetricSelect(forms.Form):
+class chartMetricSelect(forms.Form):
     metric_select = forms.ChoiceField(choices=(
         (metric, ' '.join(word.capitalize() for word in metric.split('_'))) for metric in METRICS)
     )
@@ -51,3 +51,12 @@ class SignUp(forms.Form):
         if password == confirm_password and not username_taken:
             return True
         return False
+    
+
+class SearchItem(forms.Form):
+    search_value = forms.CharField(
+        max_length=ModelsConfig.Length.ITEM_NAME
+    )
+
+    def is_valid(self) -> bool:
+        return super().is_valid()

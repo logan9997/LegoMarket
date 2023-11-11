@@ -4,7 +4,7 @@ from django.views.generic import TemplateView
 from ..models import Item, Price
 from typing import Any
 from decimal import Decimal
-from ..forms import GraphMetricSelect
+from ..forms import chartMetricSelect
 from fuzzywuzzy import fuzz
 
 
@@ -14,7 +14,7 @@ class ItemView(TemplateView):
     def dispatch(self, request: HttpRequest, item_id, *args: Any, **kwargs: Any) -> HttpResponse:
         self.item_id = item_id
         self.title = f'Item/{self.item_id}'
-        self.selected_graph_metric = self.get_selected_graph_metric()
+        self.selected_chart_metric = self.get_selected_chart_metric()
         self.request = request
         return super().dispatch(request, *args, **kwargs)
 
@@ -23,25 +23,25 @@ class ItemView(TemplateView):
         context.update({
             'title': self.title,
             'item_info': self.get_item_info(),
-            'graph_metrics': self.get_graph_data(self.selected_graph_metric),
-            'graph_dates': self.get_graph_data('date'),
-            'graph_id':f'graph-{self.item_id}',
+            'chart_metrics': self.get_chart_data(self.selected_chart_metric),
+            'chart_dates': self.get_chart_data('date'),
+            'chart_id':f'chart-{self.item_id}',
             'price_new': self.get_current_metric('price_new'),
             'price_used': self.get_current_metric('price_used'),
             'qty_new': self.get_current_metric('qty_new'),
             'qty_used': self.get_current_metric('qty_used'),
             'similar_items': self.get_similar_items(),
-            'form':GraphMetricSelect,
+            'form':chartMetricSelect,
         })
         return context
     
-    def get_selected_graph_metric(self) -> str:
+    def get_selected_chart_metric(self) -> str:
         return self.request.GET.get('metric_select', 'price_new')
     
     def get_item_info(self):
         return Item.objects.get(item_id=self.item_id)
     
-    def get_graph_data(self, metric:str):
+    def get_chart_data(self, metric:str):
         metrics = Price.objects.filter(
             item_id=self.item_id
         ).values_list(metric, flat=True).order_by('-date')
