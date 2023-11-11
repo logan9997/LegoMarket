@@ -35,6 +35,7 @@ class DB:
         self.conn.commit()
 
     def get_item_ids_types(self, **kwargs):
+        '''SELECT item_id, item_type'''
         sql = '''
         SELECT item_id, item_type
         FROM "App_item";
@@ -42,6 +43,7 @@ class DB:
         return self.select(sql,** kwargs)
     
     def get_item_ids(self):
+        '''SELECT item_id'''
         sql = '''
         SELECT item_id
         FROM "App_item"
