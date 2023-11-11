@@ -1,0 +1,44 @@
+#id_search_value {
+    width: 36rem;
+}
+
+#search-suggestions-container {
+    width: 36rem;
+    height: 24rem;
+    position: absolute;
+    left: calc(50% - 18rem);
+    overflow: scroll;
+}
+
+.search-suggestion {
+    border-bottom: 0.1rem black solid;
+    display: flex;
+    flex-direction: row;
+    height: 6rem;
+    padding: 0.5rem;
+}
+
+.search-suggestion:nth-child(odd) {
+    background-color: white;
+}
+
+.search-suggestion:nth-child(even) {
+    background-color: rgb(234, 217, 217);
+}
+
+.search-suggestion:hover {
+    background-color: rgb(238, 227, 227);
+}
+
+.search-suggestion img {
+    width: 80px;
+    height: 100%;
+    display: block;
+}
+
+.search-suggestion .item-name-item-id-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    margin-left: 1rem;
+}
