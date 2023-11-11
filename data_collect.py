@@ -6,6 +6,8 @@ from config import DATE_FORMAT
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 import time
+import requests
+import os
 
 db = DB()
 response = Response()
@@ -59,6 +61,20 @@ class DataCollect:
 
                 data = [item_id, item_name, item_type, year_released]
                 db.insert_item(data)
+
+    def download_images(self) -> None:
+        items = db.get_item_ids_types(format=True)
+        save_path = 'App/static/App/images'
+        for item in items:
+            item_type = item.get('item_type')
+            item_id = item.get('item_id')
+            
+            image_url = f'https://img.bricklink.com/ItemImage/{item_type}N/0/{item_id}.png'
+            image = requests.get(image_url).content
+            full_path = os.path.join(save_path, item_id + '.png')
+            
+            with open(full_path, 'wb') as write_file:
+                write_file.write(image) 
 
 class Scrape:
 
