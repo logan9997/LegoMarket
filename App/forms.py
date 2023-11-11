@@ -55,7 +55,10 @@ class SignUp(forms.Form):
 
 class SearchItem(forms.Form):
     search_value = forms.CharField(
-        max_length=ModelsConfig.Length.ITEM_NAME
+        max_length=ModelsConfig.Length.ITEM_NAME,
+        widget= forms.TextInput(attrs={
+            'oninput': 'show_search_suggestions(this)'
+        })
     )
 
     def is_valid(self) -> bool:
