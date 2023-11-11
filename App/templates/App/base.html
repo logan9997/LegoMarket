@@ -6,6 +6,12 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <title>{{title}}</title>
     {% block head %} {% endblock %}
+
+    {% get_item_names as item_names %}
+    {{ item_names|json_script:'item-names' }}
+
+    {% get_item_ids as item_ids %}
+    {{ item_ids|json_script:'item-ids' }}
 </head>
 <body>
 
@@ -15,9 +21,12 @@
         {{search_form}}
         <button type="submit">Search!</button>
     </form> 
+    <div id ="search-suggestions-container"></div>
 
     {% block content %} {% endblock %}
 </body>
     {% block script %} {% endblock %}
     <script src="{% static 'App/chart.js' %}"></script>
+    <script src="{% static 'App/search_suggestions.js' %}"></script>
 </html>
+
