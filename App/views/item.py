@@ -24,6 +24,8 @@ class ItemView(TemplateView):
             'title': self.title,
             'item_info': self.get_item_info(),
             'graph_metrics': self.get_graph_data(self.selected_graph_metric),
+            'graph_dates': self.get_graph_data('date'),
+            'graph_id':f'graph-{self.item_id}',
             'price_new': self.get_current_metric('price_new'),
             'price_used': self.get_current_metric('price_used'),
             'qty_new': self.get_current_metric('qty_new'),
@@ -31,7 +33,6 @@ class ItemView(TemplateView):
             'similar_items': self.get_similar_items(),
             'form':GraphMetricSelect,
         })
-        print(self.get_percentage_change('price_new'))
         return context
     
     def get_selected_graph_metric(self) -> str:
@@ -43,8 +44,8 @@ class ItemView(TemplateView):
     def get_graph_data(self, metric:str):
         metrics = Price.objects.filter(
             item_id=self.item_id
-        ).values('date', metric).order_by('-date')
-        return metrics
+        ).values_list(metric, flat=True).order_by('-date')
+        return list(metrics)
     
     def get_current_metric(self, metric:str) -> Decimal | int:
         metric = Price.objects.filter(
