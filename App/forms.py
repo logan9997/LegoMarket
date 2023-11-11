@@ -3,8 +3,11 @@ from config import METRICS, ModelsConfig
 from .models import User
 
 class chartMetricSelect(forms.Form):
-    metric_select = forms.ChoiceField(choices=(
-        (metric, ' '.join(word.capitalize() for word in metric.split('_'))) for metric in METRICS)
+    metric_select = forms.ChoiceField(
+        choices=(
+            (metric, ' '.join(word.capitalize() for word in metric.split('_'))) for metric in METRICS
+        ),
+        widget=forms.Select(attrs={'oninput': 'this.form.submit()'})
     )
 
 
