@@ -4,5 +4,9 @@
 {{ chart_metrics|json_script:'chart-data' }}
 {{ chart_id|json_script:'chart-id' }}
 
-<canvas style="max-width: 40rem; max-height: 20rem;" id="chart"></canvas>
+<canvas style="max-width: 40rem; max-height: 20rem;" id="{{chart_id}}"></canvas>
 
+<script>
+    chart = new CreateChart()
+    chart.create_chart()
+</script>
