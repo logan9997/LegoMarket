@@ -14,6 +14,11 @@ class Item(models.Model):
         choices=(ModelsConfig.Choice.ITEM_TYPE)
     )
     year_released = models.IntegerField()
+    image_path = models.CharField(
+        max_length=ModelsConfig.Length.IMAGE_PATH,
+        null=True,
+        blank=True
+    )
 
 
 class Price(models.Model):
