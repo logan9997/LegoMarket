@@ -65,7 +65,11 @@ class DataCollect:
     def download_images(self) -> None:
         items = db.get_item_ids_types(format=True)
         save_path = 'App/static/App/images'
+        downloaded_images = os.listdir(save_path)
         for item in items:
+            if item + '.png' in downloaded_images:
+                continue
+            
             item_type = item.get('item_type')
             item_id = item.get('item_id')
             
