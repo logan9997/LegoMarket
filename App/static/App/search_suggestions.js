@@ -25,14 +25,24 @@ class SearchSuggestions {
                 }
             }
         }
+        if (matches == 0) {
+            this.search_suggestions_container.style.visibility = 'hidden'
+        }
     }
 
     get_search_suggestion_html(item_id, item_name) {
         var container = document.createElement('div');
+        container.setAttribute('width', '10rem')
+        var img_path = window.location.origin + `/static/App/images/${item_id}.png`
+        var item_path = window.location.origin + `/item/${item_id}/`
         var html = `
-        <h3>${item_id}</h3>
-        <span>${item_name}</span>
-        <img src="img_path" alt="?">
+        <div class="search-suggestion">
+            <img src="${img_path}">
+            <div class="item-name-item-id-container">
+                <span class="item-name">${item_name}</span>
+                <a href="${item_path}" class="item-id">${item_id}</a>
+            </div>
+        </div>
         `
         container.innerHTML = html
         return container
