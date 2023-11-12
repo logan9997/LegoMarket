@@ -1,6 +1,12 @@
 class SearchSuggestions {
     constructor() {
         this.search_suggestions_container = document.getElementById('search-suggestions-container')
+        this.form = document.getElementById('item-search-form')
+        this.input = document.getElementById('id_search_value')
+        this.input_value = this.input.value.toLowerCase()
+        this.item_names = JSON.parse(document.getElementById('item-names').textContent)
+        this.item_ids = JSON.parse(document.getElementById('item-ids').textContent)
+        this.set_event_listener_submit()
     }
 
     show_search_suggestions() {
@@ -8,16 +14,12 @@ class SearchSuggestions {
 
         const max_matches = 12
         var matches = 0
-        var input = document.getElementById('id_search_value')
-        var input_value = input.value.toLowerCase()
-        var item_names = JSON.parse(document.getElementById('item-names').textContent)
-        var item_ids = JSON.parse(document.getElementById('item-ids').textContent)
 
-        if (input_value.length >= 3) {
-            for (let i = 0; i < item_ids.length; i++) {
-                if (item_names[i].toLowerCase().includes(input_value) || item_ids[i].toLowerCase().includes(input_value)) {
+        if (this.input_value.length >= 3) {
+            for (let i = 0; i < this.item_ids.length; i++) {
+                if (this.item_names[i].toLowerCase().includes(this.input_value) || this.item_ids[i].toLowerCase().includes(this.input_value)) {
                     matches += 1
-                    var search_suggestion = this.get_search_suggestion_html(item_ids[i], item_names[i]) 
+                    var search_suggestion = this.get_search_suggestion_html(this.item_ids[i], this.item_names[i]) 
                     this.search_suggestions_container.appendChild(search_suggestion)
                     if (matches >= max_matches) {
                         break
@@ -25,9 +27,7 @@ class SearchSuggestions {
                 }
             }
         }
-        if (matches == 0) {
-            this.search_suggestions_container.style.visibility = 'hidden'
-        }
+        this.set_search_suggestions_visibility(matches)
     }
 
     get_search_suggestion_html(item_id, item_name) {
@@ -50,5 +50,12 @@ class SearchSuggestions {
 
     clear_search_suggestions() {
         this.search_suggestions_container.innerHTML = ''
+    }
+
+    set_search_suggestions_visibility(matches) {
+        this.search_suggestions_container.style.visibility = 'visible'
+        if (matches == 0) {
+            this.search_suggestions_container.style.visibility = 'hidden'
+        }
     }
 }
