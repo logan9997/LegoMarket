@@ -9,6 +9,7 @@ class ModelsConfig:
         ITEM_TYPE = 1
         USERNAME = 16
         PASSWORD = 20
+        IMAGE_PATH = 400
 
     class Decimal:
         MAX_DIGITS = 10
