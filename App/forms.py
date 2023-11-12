@@ -1,6 +1,7 @@
 from django import forms
+from django.shortcuts import redirect
 from config import METRICS, ModelsConfig
-from .models import User
+from .models import User, Item
 
 class chartMetricSelect(forms.Form):
     metric_select = forms.ChoiceField(
@@ -61,8 +62,8 @@ class SearchItem(forms.Form):
         label='',
         max_length=ModelsConfig.Length.ITEM_NAME,
         widget= forms.TextInput(attrs={
-            'oninput': 'new SearchSuggestions().show_search_suggestions()',
+            'oninput': 'search_suggestions.show_search_suggestions()',
             'placeholder': 'Item Name / ID',
-            'class': 'form-control mr-sm-2'
+            'class': 'form-control mr-sm-2',
         }),
     )
