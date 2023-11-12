@@ -33,10 +33,12 @@ class CreateChart {
 				},
 				y: {
 					beginAtZero: true,
+					position: 'right',
 						grid: {
 							display: false
 						}
-					}
+					},
+	
 			},
 			plugins: {
 				legend: {
