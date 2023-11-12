@@ -11,7 +11,7 @@ from fuzzywuzzy import fuzz
 class ItemView(TemplateView):
     template_name = 'App/item/item.html'
 
-    def dispatch(self, request: HttpRequest, item_id, *args: Any, **kwargs: Any) -> HttpResponse:
+    def dispatch(self, request: HttpRequest, item_id:str, *args: Any, **kwargs: Any) -> HttpResponse:
         self.item_id = item_id
         if not self.is_item_id_valid():
             return redirect('home')
@@ -42,13 +42,13 @@ class ItemView(TemplateView):
         if self.item_id in item_ids:
             return True
         return False
-    
+
     def get_selected_chart_metric(self) -> str:
         return self.request.GET.get('metric_select', 'price_new')
     
     def get_item_info(self):
         return Item.objects.get(item_id=self.item_id)
-    
+        
     def get_chart_data(self, metric:str):
         metrics = Price.objects.filter(
             item_id=self.item_id
@@ -75,15 +75,15 @@ class ItemView(TemplateView):
         return percentage_change
 
     def get_similar_items(self):
-        threshold = 75
+        threshold = 50
         selected_item_name = self.get_item_info().item_name
-        item_names = Item.objects.all().values_list(
-            'item_name', flat=True
+        item_ids_names = Item.objects.all().values(
+            'item_id','item_name'
         ).exclude(item_name=selected_item_name)
 
         similar_items = [
-            Item.objects.filter(item_name=item_name) 
-            for item_name in item_names 
-            if fuzz.partial_ratio(selected_item_name, item_name) >= threshold
+            Item.objects.get(item_id=item['item_id'])
+            for item in item_ids_names 
+            if fuzz.partial_ratio(selected_item_name, item['item_name']) >= threshold
         ]
         return similar_items
