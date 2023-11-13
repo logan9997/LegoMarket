@@ -8,6 +8,12 @@
     position: absolute;
     left: calc(50% - 18rem);
     overflow: scroll;
+    z-index: 4;
+}
+
+.item-image {
+    width: 80px;
+    height: 100px;
 }
 
 .search-suggestion {
@@ -31,8 +37,6 @@
 }
 
 .search-suggestion img {
-    width: 80px;
-    height: 100%;
     display: block;
 }
 
