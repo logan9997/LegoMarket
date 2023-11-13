@@ -6,7 +6,7 @@ from typing import Any
 from decimal import Decimal
 from ..forms import chartMetricSelect
 from fuzzywuzzy import fuzz
-
+from utils import timer
 
 class ItemView(TemplateView):
     template_name = 'App/item/item.html'
@@ -74,16 +74,28 @@ class ItemView(TemplateView):
         percentage_change = (earliest - latest) / earliest * 100
         return percentage_change
 
+    @timer
     def get_similar_items(self):
-        threshold = 50
-        selected_item_name = self.get_item_info().item_name
-        item_ids_names = Item.objects.all().values(
-            'item_id','item_name'
-        ).exclude(item_name=selected_item_name)
+        threshold = 90
+        threshold_stop_limit = 60
+        similar_items_limit = 6
+        threshold_decrement = 5
 
-        similar_items = [
-            Item.objects.get(item_id=item['item_id'])
-            for item in item_ids_names 
-            if fuzz.partial_ratio(selected_item_name, item['item_name']) >= threshold
-        ]
-        return similar_items
+        selected_item = self.get_item_info()
+        items = Item.objects.filter(
+            item_type=selected_item.item_type
+        ).values('item_id','item_name').exclude(item_name=selected_item.item_name)
+
+        similar_items = []
+        while True:
+            for item in items:
+                if fuzz.partial_ratio(selected_item.item_name, item['item_name']) >= threshold:
+                    similar_item = Item.objects.get(item_id=item['item_id'])
+                    similar_items.append(similar_item)
+                    items = items.exclude(item_id=similar_item.item_id)
+
+            if len(similar_items) >= similar_items_limit or threshold <= threshold_stop_limit:
+                similar_items = similar_items[:similar_items_limit]
+                return similar_items
+            
+            threshold -= threshold_decrement
