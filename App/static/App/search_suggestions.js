@@ -3,14 +3,14 @@ class SearchSuggestions {
         this.search_suggestions_container = document.getElementById('search-suggestions-container')
         this.form = document.getElementById('item-search-form')
         this.input = document.getElementById('id_search_value')
-        this.input_value = this.input.value.toLowerCase()
+        
         this.item_names = JSON.parse(document.getElementById('item-names').textContent)
         this.item_ids = JSON.parse(document.getElementById('item-ids').textContent)
-        this.set_event_listener_submit()
     }
 
     show_search_suggestions() {
         this.clear_search_suggestions()
+        this.input_value = this.input.value.toLowerCase()
 
         const max_matches = 12
         var matches = 0
@@ -19,6 +19,7 @@ class SearchSuggestions {
             for (let i = 0; i < this.item_ids.length; i++) {
                 if (this.item_names[i].toLowerCase().includes(this.input_value) || this.item_ids[i].toLowerCase().includes(this.input_value)) {
                     matches += 1
+                    console.log('new match', this.item_ids[i])
                     var search_suggestion = this.get_search_suggestion_html(this.item_ids[i], this.item_names[i]) 
                     this.search_suggestions_container.appendChild(search_suggestion)
                     if (matches >= max_matches) {
