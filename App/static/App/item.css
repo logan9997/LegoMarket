@@ -1,0 +1,61 @@
+#top-half {
+    background-color: rgb(44, 44, 44);
+    height: 10rem;
+}
+
+#item-name {
+    margin-left: 5rem;
+    color: white;
+}
+
+#bottom-half {
+    display: flex;
+    flex-direction: row;
+}
+
+#item * {
+    margin: 0 5rem 0;
+}
+
+#item-image-container {
+    padding: 2rem;
+    margin-bottom: 1rem;
+}
+
+#item-image-container img {
+    margin: 0;
+    padding: 0;
+    max-width: 100%;
+}
+
+.item-div {
+    border: 0.2rem black solid;
+    border-radius: 1rem;
+    height: 30rem;
+    position: relative;
+    bottom: 3rem;
+    background-color: white;
+    min-width: 35%;
+}
+
+#item-info {
+    display: flex;
+    flex-direction: column;
+    height: 10rem;
+}
+
+#item-info h3 {
+    margin-top: 0.5rem;
+}
+
+#item-info * {
+    margin-left: 1rem;
+}
+
+#chart-container {
+    width: 60%;
+}
+
+#chart-container canvas {
+    width: 100% !important;
+}
