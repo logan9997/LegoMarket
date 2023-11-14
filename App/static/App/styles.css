@@ -9,6 +9,7 @@
     left: calc(50% - 18rem);
     overflow: scroll;
     z-index: 4;
+    visibility: hidden;
 }
 
 .search-suggestion {
