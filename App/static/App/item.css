@@ -31,7 +31,6 @@
 .item-div {
     border: 0.2rem black solid;
     border-radius: 1rem;
-    height: 30rem;
     position: relative;
     bottom: 3rem;
     background-color: white;
@@ -52,10 +51,29 @@
     margin-left: 1rem;
 }
 
-#chart-container {
+#chart-prices-container {
     width: 60%;
 }
 
+#chart-container {
+    height: 29rem;
+    margin-bottom: 1rem;
+}
+
 #chart-container canvas {
-    width: 100% !important;
+    width: 105% !important;
+}
+
+#price-info {
+    height: 10rem; 
+    display: flex;
+    flex-direction: column; 
+}
+
+#price-info *{
+    margin-left: 1rem;
+}
+
+#price-info h3 {
+    margin-top: 0.5rem;
 }
