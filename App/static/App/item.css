@@ -1,3 +1,7 @@
+body {
+    background-color: whitesmoke;
+}
+
 #top-half {
     background-color: rgb(44, 44, 44);
     height: 10rem;
@@ -29,8 +33,9 @@
 }
 
 .item-div {
-    border: 0.2rem black solid;
-    border-radius: 1rem;
+    /* border: 0.2rem black solid; */
+    box-shadow: 0.1rem 0.1rem 0.1rem 0.1rem black;
+    /* border-radius: 1rem; */
     position: relative;
     bottom: 3rem;
     background-color: white;
@@ -55,13 +60,51 @@
     width: 60%;
 }
 
+#current-metric-container {
+    height: 10%;
+    padding-top: 0.9%;
+    font-size: 1.2rem;
+    padding-left: 1rem;
+    display: flex;
+    justify-content: space-between;
+}
+
+#current-date {
+    margin-right: 2rem;
+}
+
 #chart-container {
     height: 29rem;
     margin-bottom: 1rem;
 }
 
 #chart-container canvas {
-    width: 105% !important;
+    height: 80% !important;
+}
+
+#id_metric_select {
+    height: 10%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+#id_metric_select label {
+    display: inline-block;
+    position: relative;
+    padding: 0 1rem 0;
+    margin: 0 1rem 0;
+    cursor: pointer;
+    background-color: whitesmoke;
+    text-align: center;
+    border-radius: 1rem;
+}
+
+#id_metric_select input {
+    position: absolute;
+    left: 0;
+    top: 0;
+    visibility: hidden;
 }
 
 #price-info {
