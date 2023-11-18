@@ -17,6 +17,19 @@ def item_type_convert(item_type:str) -> str:
 
     return types[item_type]
 
+def metric_convert(metric) -> str:
+    metrics = {
+        'price_new': 'Price New',
+        'price_used':'Price Used',
+        'qty_new':'Quantity New',
+        'qty_used':'Quantity Used',
+    }
+    if metric not in metrics.keys():
+        return 'Price New'
+
+    return metrics[metric]
+
+
 def clean_html_codes(string:str) -> str:
     '''
     Removes html codes from string; e.g. "&#40Anakin Skywalker&#41" -> "(Anakin Skywalker)"
