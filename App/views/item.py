@@ -52,7 +52,7 @@ class ItemView(TemplateView):
     def get_chart_data(self, metric:str):
         metrics = Price.objects.filter(
             item_id=self.item_id
-        ).values_list(metric, flat=True).order_by('-date')
+        ).values_list(metric, flat=True).order_by('date')
         return list(metrics)
     
     def get_current_metric(self, metric:str) -> Decimal | int:
