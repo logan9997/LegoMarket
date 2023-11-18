@@ -1,14 +1,22 @@
 from django import forms
 from django.shortcuts import redirect
 from config import METRICS, ModelsConfig
-from .models import User, Item
+from .models import User
+
+
 
 class chartMetricSelect(forms.Form):
+    choices = (
+        (metric, ' '.join(word.capitalize() for word in metric.split('_'))) 
+        for metric in METRICS
+    )
     metric_select = forms.ChoiceField(
-        choices=(
-            (metric, ' '.join(word.capitalize() for word in metric.split('_'))) for metric in METRICS
-        ),
-        widget=forms.Select(attrs={'oninput': 'this.form.submit()'})
+        choices=choices,
+        widget=forms.RadioSelect(attrs={
+            'oninput': 'submit()',
+            'class': 'metric-select-input'
+        }),
+        label=''
     )
 
 
