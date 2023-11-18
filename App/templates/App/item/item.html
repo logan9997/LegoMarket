@@ -1,0 +1,103 @@
+{% extends 'App/base.html' %}
+{% load static %}
+{% load tags %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'App/item.css' %}">
+
+{% if chart_metrics|index:-1 > chart_metrics|index:0  %}
+<style>
+    #current-metric {
+        color: rgb(62, 178, 62);
+    }
+</style>
+{% else %}
+<style>
+    #current-metric {
+        color: red;
+    }
+</style>
+{% endif %}
+
+{% endblock %}
+
+{% block content %}
+
+<section id="item-profile">
+    <div id="top-half" class="d-flex flex-column justify-content-center">
+        <h3 id="item-name" class="d-block">{{item_info.item_name}}</h3>
+    </div>
+    <div id="bottom-half">
+        <div id="item">
+            <div id="item-image-container" class="item-div">
+                <img class="d-block mx-auto" src="{% static item_info.image_path %}" alt="">
+            </div>
+
+            <div id="item-info" class="item-div">
+                <h3>{{item_info.item_type|item_type_convert:"capitalize"}} Information</h3>
+                <span>Item No: {{item_info.item_id}}</span>
+                <span>year Released: {{item_info.year_released}}</span>
+            </div>
+        </div>
+
+        <div id="chart-prices-container">
+            <div id="chart-container" class="item-div">
+                <div id="current-metric-container">
+                    <div>
+                        <span id="current-metric-name">{{request.GET.metric_select|metric_convert}}</span>
+                        <span id="current-metric">{% if 'price' in request.GET.metric_select %}£{% endif %}{{chart_metrics|index:-1}}</span>
+                    </div>
+                    <span id="current-date"></span>
+                </div>
+                {% include 'App/chart.html' %}
+                <form method="GET">
+                    {{ form }}
+                </form>
+            </div>
+
+            <div id="price-info" class="item-div">
+                <h3>Prices & Qty</h3>
+                <span>Price New : £{{price_new}}</span>
+                <span>Price Used : £{{price_used}}</span>
+                <span>Qty New : {{qty_new}}</span>
+                <span>Qty Used : {{qty_used}}</span>
+            </div>
+        </div>
+    </div>
+
+</section>
+
+
+<section id="similar-items">
+    {% for item in similar_items %}
+    {{item.item_name}}
+    <!-- <img src="{% static item.image_path %}" alt="aaaaaa"> -->
+    {% endfor %}
+</section>
+
+{% endblock %}
+
+{% block script %} 
+<script>
+    const url_params = new URLSearchParams(window.location.search)
+
+    let form = document.getElementById('id_metric_select')
+    let labels = form.getElementsByTagName('label')
+
+    var metric_select = url_params.get('metric_select')
+    if (metric_select == null) {
+        metric_select = 'price_new'
+    }
+
+    for (let i = 0; i < labels.length; i ++) {
+        let input = labels[i].getElementsByTagName('input')[0]
+        if (input.value == metric_select) {
+            console.log(input)
+            labels[i].setAttribute('class', 'bg-primary')
+            break
+        }
+    } 
+</script>
+{% endblock %}
