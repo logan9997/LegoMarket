@@ -15,7 +15,7 @@ class SignUpView(FormView):
         self.request = request
         return super().post(request, *args, **kwargs)
     
-    def form_valid(self, form: Any) -> HttpResponse:
+    def form_valid(self, form: SignUp) -> HttpResponse:
         username = form.data.get('username')
         password = form.data.get('password')
 

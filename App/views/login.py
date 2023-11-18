@@ -14,7 +14,7 @@ class LoginView(FormView):
         self.request = request
         return super().post(request, *args, **kwargs)
     
-    def form_valid(self, form: Any) -> HttpResponse:
+    def form_valid(self, form: Login) -> HttpResponse:
         user_id = form.get_user_id()
         self.request.session['user_id'] = user_id
         return super().form_valid(form)
