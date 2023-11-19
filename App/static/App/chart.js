@@ -6,7 +6,11 @@ class UpdateMetric {
 		this.dates = chart.get_labels()
 		this.current_metric = document.getElementById('current-metric')
 		this.current_date = document.getElementById('current-date')
+		this.metric_difference = document.getElementById('metric-difference')
+		this.metric_percentage_difference = document.getElementById('metric-percentage-difference')		
 		this.metric_select = new URLSearchParams(window.location.search).get('metric_select')
+		this.end_index = this.data.length-1
+
 	}
 
 	get_current_metric(current_metric) {
@@ -14,17 +18,84 @@ class UpdateMetric {
 			current_metric = `£${current_metric}` 
 		}
 		return current_metric
-}
+	}
 
+	get_metric_difference(index) {
+		let difference = this.add_sign(this.data[index] - this.data[0])
+		difference = Math.round(difference * 100) / 100
+		return this.zero_pad(difference)
+	}
+
+	zero_pad(number) {
+		number = String(number)
+		if (!number.includes('.')) {
+			return number
+		}
+
+		let remove_chars = ['(', ')', '%']
+		for (let i = 0; i < remove_chars.length; i ++) {
+			if (number.includes(remove_chars[i])) {
+				number = number.replace(remove_chars[i], '')
+			}
+		}
+
+		let number_split = number.split('.')
+		let int = number_split[0]
+		let decimal = number_split[1]
+		if (decimal.length == 1) {
+			decimal = `${decimal}0`
+		}
+		return `${int}.${decimal}`
+	}
+
+	get_metric_percentage_difference(index) {
+		let hovered_metric = this.data[index]
+		if (hovered_metric == 0) {
+			return 100
+		}
+		let percentage_difference = (hovered_metric - this.data[0]) / hovered_metric * 100
+		percentage_difference = Math.round(percentage_difference * 100) / 100
+		percentage_difference =  `(${this.add_sign(percentage_difference)}%)`
+		return this.zero_pad(percentage_difference)
+	}
+
+	add_sign(number) {
+		if (number >= 0) {
+			return `+${number}`
+		}
+		return number
+	}
+
+	set_colour(element, current_metric_value, oldest_metric_value) {
+		if (current_metric_value >= oldest_metric_value) {
+			element.style.color = 'green';
+		} else {
+			element.style.color = 'red';
+		} 
+	}
 
 	update_hovered_metric(index) {
 		this.current_metric.innerText = this.get_current_metric(this.data[index])
 		this.current_date.innerText = this.dates[index]
+		this.metric_difference.innerText = this.get_metric_difference(index)
+		this.metric_percentage_difference.innerText = this.get_metric_percentage_difference(index)
+
+		this.set_colour(this.current_metric, this.data[index], this.data[0])
+		this.set_colour(this.metric_difference, this.data[index], this.data[0])
+		this.set_colour(this.metric_percentage_difference, this.data[index], this.data[0])
+
 	}
 
 	reset_hovered_metric() {
-		this.current_metric.innerText = this.get_current_metric(this.data[this.data.length-1])
+		this.current_metric.innerText = this.get_current_metric(this.data[this.end_index])
 		this.current_date.innerText = ''
+		this.metric_difference.innerText = this.get_metric_difference(this.end_index)
+		this.metric_percentage_difference.innerText = this.get_metric_percentage_difference(this.end_index) 
+
+		this.set_colour(this.current_metric, this.data[this.end_index], this.data[0])
+		this.set_colour(this.metric_difference, this.data[this.end_index], this.data[0])
+		this.set_colour(this.metric_percentage_difference, this.data[this.end_index], this.data[0])
+
 	}
 }
 
@@ -43,7 +114,7 @@ class CreateChart {
 
 	set_mouseout_listener() {
 		let chart = this.get_canvas()
-		chart.addEventListener('mouseout', (e) => {
+		chart.addEventListener('mouseout', () => {
 			if (this.is_hovered) {
 				let update_metric = new UpdateMetric()
 				update_metric.reset_hovered_metric()   
@@ -69,6 +140,17 @@ class CreateChart {
 		return gradient;
 	}
 
+	get_min_value(iterable) {
+		let min = 9999999
+		for (let i = 0; i < iterable.length; i ++) {
+			if (iterable[i] < min) {
+				min = iterable[i]
+			}
+		}
+		console.log(min)
+		return min
+	}
+
 	get_options() {
 		let options = {
 			scales: {
@@ -84,6 +166,7 @@ class CreateChart {
 					grid: {
 						display: false
 					},
+					min: this.get_min_value(this.get_data())
 				},
 			},
 			plugins: {
