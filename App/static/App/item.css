@@ -80,6 +80,7 @@ body {
 
 #chart-container canvas {
     height: 80% !important;
+    padding-bottom: 1rem;
 }
 
 #id_metric_select {
