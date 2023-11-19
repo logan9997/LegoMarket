@@ -21,12 +21,16 @@ class ItemView(TemplateView):
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
+        chart_metrics = self.get_chart_data(self.selected_chart_metric)
+
         context = super().get_context_data(**kwargs)
         context.update({
             'title': self.title,
             'item_info': self.get_item_info(),
-            'chart_metrics': self.get_chart_data(self.selected_chart_metric),
+            'chart_metrics': chart_metrics,
             'chart_dates': self.get_chart_data('date'),
+            'metric_difference':chart_metrics[-1] - chart_metrics[0],
+            'metric_percentage_difference':self.get_metric_percentage_change(self.selected_chart_metric),
             'chart_id':f'chart-{self.item_id}',
             'price_new': self.get_current_metric('price_new'),
             'price_used': self.get_current_metric('price_used'),
@@ -71,8 +75,8 @@ class ItemView(TemplateView):
             return 100
         latest = prices_objects.latest('date')
 
-        percentage_change = (earliest - latest) / earliest * 100
-        return percentage_change
+        percentage_change = (latest - earliest) / latest * 100
+        return round(percentage_change, 2)
 
     @timer
     def get_similar_items(self):
