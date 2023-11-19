@@ -48,3 +48,12 @@ def add_sign(number):
     if number >= 0:
         return f'+{number}'
     return number
+
+
+@register.filter
+def insert(iterable, char_and_index:str):
+    char = char_and_index.split(',')[0]
+    index = int(char_and_index.split(',')[1])
+    iterable = list(str(iterable))
+    iterable.insert(index, char)
+    return ''.join(iterable)
