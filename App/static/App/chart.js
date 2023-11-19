@@ -8,9 +8,17 @@ class UpdateMetric {
 		this.current_date = document.getElementById('current-date')
 		this.metric_difference = document.getElementById('metric-difference')
 		this.metric_percentage_difference = document.getElementById('metric-percentage-difference')		
-		this.metric_select = new URLSearchParams(window.location.search).get('metric_select')
+		this.metric_select = this.get_metric_select()
 		this.end_index = this.data.length-1
 
+	}
+
+	get_metric_select() {
+		let metric_select = new URLSearchParams(window.location.search).get('metric_select')
+		if (metric_select == null) {
+			return 'price_new'
+		}
+		return metric_select
 	}
 
 	get_current_metric(current_metric) {
