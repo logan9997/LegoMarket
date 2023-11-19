@@ -41,3 +41,10 @@ def metric_convert(metric: str):
 @register.filter
 def index(iterable, index:int):
     return iterable[index]
+
+
+@register.filter
+def add_sign(number):
+    if number >= 0:
+        return f'+{number}'
+    return number
