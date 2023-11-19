@@ -31,13 +31,15 @@ class UpdateMetric {
 	get_metric_difference(index) {
 		let difference = this.add_sign(this.data[index] - this.data[0])
 		difference = Math.round(difference * 100) / 100
-		return this.zero_pad(difference)
+		if (this.metric_select.includes('price')) {
+			return this.zero_pad(difference)
+		} return difference
 	}
 
 	zero_pad(number) {
 		number = String(number)
 		if (!number.includes('.')) {
-			return number
+			return `${number}.00` 
 		}
 
 		let remove_chars = ['(', ')', '%']
@@ -63,8 +65,8 @@ class UpdateMetric {
 		}
 		let percentage_difference = (hovered_metric - this.data[0]) / hovered_metric * 100
 		percentage_difference = Math.round(percentage_difference * 100) / 100
-		percentage_difference =  `(${this.add_sign(percentage_difference)}%)`
-		return this.zero_pad(percentage_difference)
+		percentage_difference =  this.add_sign(percentage_difference)
+		return `(${this.zero_pad(percentage_difference)}%)`
 	}
 
 	add_sign(number) {
