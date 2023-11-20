@@ -148,11 +148,10 @@ body {
 }
 
 #similar-items {
-    /* background-color: red; */
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    justify-content: space-between;
+    justify-content: space-evenly;
 }
 
 .similar-item {
