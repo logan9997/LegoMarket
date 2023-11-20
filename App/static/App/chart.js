@@ -24,16 +24,22 @@ class UpdateMetric {
 	get_current_metric(current_metric) {
 		if (this.metric_select.includes('price')) {
 			current_metric = `£${current_metric}` 
+			current_metric = this.zero_pad(current_metric)
 		}
 		return current_metric
 	}
 
 	get_metric_difference(index) {
-		let difference = this.add_sign(this.data[index] - this.data[0])
+		let difference = this.data[index] - this.data[0]
 		difference = Math.round(difference * 100) / 100
+		difference = this.add_sign(difference)
 		if (this.metric_select.includes('price')) {
-			return this.zero_pad(difference)
-		} return difference
+			difference = this.zero_pad(difference)
+			let difference_chars = difference.split('')
+			difference_chars.splice(1, 0, '£')
+			difference = difference_chars.join('')
+		} 
+		return difference
 	}
 
 	zero_pad(number) {
@@ -135,6 +141,9 @@ class CreateChart {
 
 	get_data() {
 		let data = JSON.parse(document.getElementById('chart-data').textContent);
+		data = data.map(function (d) {
+			return parseFloat(d)
+		})
 		return data;
 	}
 
@@ -151,13 +160,12 @@ class CreateChart {
 	}
 
 	get_min_value(iterable) {
-		let min = 9999999
-		for (let i = 0; i < iterable.length; i ++) {
+		let min = iterable[0]
+		for (let i = 1; i < iterable.length; i ++) {
 			if (iterable[i] < min) {
 				min = iterable[i]
 			}
 		}
-		console.log(min)
 		return min
 	}
 
