@@ -8,17 +8,24 @@ body {
 }
 
 #item-name {
-    margin-left: 5rem;
     color: white;
 }
 
 #bottom-half {
     display: flex;
     flex-direction: row;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    width: 90vw;
+    margin: auto;
+    /* background-color: red; */
 }
 
-#item * {
-    margin: 0 5rem 0;
+#item {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 25%;
 }
 
 #item-image-container {
@@ -33,13 +40,10 @@ body {
 }
 
 .item-div {
-    /* border: 0.2rem black solid; */
     box-shadow: 0.1rem 0.1rem 0.1rem 0.1rem black;
-    /* border-radius: 1rem; */
     position: relative;
     bottom: 3rem;
     background-color: white;
-    min-width: 35%;
 }
 
 #item-info {
@@ -57,7 +61,7 @@ body {
 }
 
 #chart-prices-container {
-    width: 60%;
+    width: 70%;
 }
 
 #current-metric-container {
@@ -67,6 +71,10 @@ body {
     padding-left: 1rem;
     display: flex;
     justify-content: space-between;
+}
+
+#chart-metrics span {
+    margin: 0 0.1rem 0;
 }
 
 #current-date {
@@ -80,7 +88,8 @@ body {
 
 #chart-container canvas {
     height: 80% !important;
-    padding-bottom: 1rem;
+    width: 100% !important;
+    /* padding-bottom: 3rem; */
 }
 
 #id_metric_select {
@@ -114,10 +123,49 @@ body {
     flex-direction: column; 
 }
 
-#price-info *{
+#price-info * {
     margin-left: 1rem;
 }
 
 #price-info h3 {
     margin-top: 0.5rem;
+}
+
+#similar-items-section {
+    box-shadow: 0.1rem 0.1rem 0.1rem 0.1rem black;
+    width: 90vw;
+    margin: auto;
+    background-color: white;
+}
+
+#similar-items-section h3 {
+    text-align: center;
+    font-size: 1.75rem;
+}
+
+#similar-items {
+    /* background-color: red; */
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+
+.similar-item {
+    min-width: 12rem;
+    height: 16rem;
+    overflow: hidden;
+    margin: 0 2.5rem 0;
+}
+
+
+.similar-item * {
+    margin: auto;
+    display: block;
+    text-align: center;
+}
+
+.similar-item img {
+    height: 70%;
+    width: 100%;
 }
