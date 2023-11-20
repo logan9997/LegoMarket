@@ -20,6 +20,7 @@ class ItemView(TemplateView):
         self.request = request
         return super().dispatch(request, *args, **kwargs)
 
+    @timer
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         chart_metrics = self.get_chart_data(self.selected_chart_metric)
 
@@ -27,6 +28,7 @@ class ItemView(TemplateView):
         context.update({
             'title': self.title,
             'item_info': self.get_item_info(),
+            'metric_select':self.selected_chart_metric,
             'chart_metrics': chart_metrics,
             'chart_dates': self.get_chart_data('date'),
             'metric_difference':chart_metrics[-1] - chart_metrics[0],
@@ -78,7 +80,6 @@ class ItemView(TemplateView):
         percentage_change = (latest - earliest) / latest * 100
         return round(percentage_change, 2)
 
-    @timer
     def get_similar_items(self):
         threshold = 90
         threshold_stop_limit = 60
