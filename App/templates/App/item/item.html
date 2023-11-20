@@ -7,15 +7,43 @@
 {% block head %}
 <link rel="stylesheet" href="{% static 'App/item.css' %}">
 
-{% if chart_metrics|index:-1 > chart_metrics|index:0  %}
+{% if chart_metrics|index:-1 >= chart_metrics|index:0  %}
 <style>
     #current-metric {
-        color: rgb(62, 178, 62);
+        color: green;
     }
 </style>
 {% else %}
 <style>
     #current-metric {
+        color: red;
+    }
+</style>
+{% endif %}
+
+{% if metric_difference >= 0%}
+<style>
+    #metric-difference {
+        color: green;
+    }
+</style>
+{% else %}
+<style>
+    #metric-difference {
+        color: red;
+    }
+</style>
+{% endif %}
+
+{% if metric_percentage_difference >= 0%}
+<style>
+    #metric-percentage-difference {
+        color: green;
+    }
+</style>
+{% else %}
+<style>
+    #metric-percentage-difference {
         color: red;
     }
 </style>
@@ -29,52 +57,62 @@
     <div id="top-half" class="d-flex flex-column justify-content-center">
         <h3 id="item-name" class="d-block">{{item_info.item_name}}</h3>
     </div>
-    <div id="bottom-half">
-        <div id="item">
-            <div id="item-image-container" class="item-div">
-                <img class="d-block mx-auto" src="{% static item_info.image_path %}" alt="">
-            </div>
-
-            <div id="item-info" class="item-div">
-                <h3>{{item_info.item_type|item_type_convert:"capitalize"}} Information</h3>
-                <span>Item No: {{item_info.item_id}}</span>
-                <span>year Released: {{item_info.year_released}}</span>
-            </div>
+    <div id="bottom-half" class="row">
+        <div id="item-image-container" class="item-div">
+            <img class="d-block mx-auto" src="{% static item_info.image_path %}" alt="">
         </div>
 
-        <div id="chart-prices-container">
-            <div id="chart-container" class="item-div">
-                <div id="current-metric-container">
-                    <div>
-                        <span id="current-metric-name">{{request.GET.metric_select|metric_convert}}</span>
-                        <span id="current-metric">{% if 'price' in request.GET.metric_select %}£{% endif %}{{chart_metrics|index:-1}}</span>
-                    </div>
-                    <span id="current-date"></span>
+        <div id="chart-container" class="item-div">
+            <div id="current-metric-container">
+                <div id="chart-metrics">
+                    <span id="current-metric-name">{{metric_select|metric_convert}}</span>
+                    <span id="current-metric">{% if 'price' in metric_select %}£{% endif %}{{chart_metrics|index:-1}}</span>
+                    <span id="metric-difference">
+                        {%if 'price' in metric_select %} 
+                        {{metric_difference|add_sign|insert:"£,1"}} 
+                        {% else %}
+                        {{metric_difference|add_sign}}
+                        {% endif %}
+                    </span>
+                    <span id="metric-percentage-difference">({{metric_percentage_difference}}%)</span>
                 </div>
-                {% include 'App/chart.html' %}
-                <form method="GET">
-                    {{ form }}
-                </form>
+                <span id="current-date"></span>
             </div>
+            {% include 'App/chart.html' %}
+            <form method="GET">
+                {{ form }}
+            </form>
+        </div>
 
-            <div id="price-info" class="item-div">
-                <h3>Prices & Qty</h3>
-                <span>Price New : £{{price_new}}</span>
-                <span>Price Used : £{{price_used}}</span>
-                <span>Qty New : {{qty_new}}</span>
-                <span>Qty Used : {{qty_used}}</span>
-            </div>
+        <div id="item-info" class="item-div">
+            <h3>{{item_info.item_type|item_type_convert:"capitalize"}} Information</h3>
+            <span>Item No: {{item_info.item_id}}</span>
+            <span>year Released: {{item_info.year_released}}</span>
+        </div>
+
+        <div id="price-info" class="item-div">
+            <h3>Prices & Quantities</h3>
+            <span>Price New : £{{price_new}}</span>
+            <span>Price Used : £{{price_used}}</span>
+            <span>Qty New : {{qty_new}}</span>
+            <span>Qty Used : {{qty_used}}</span>
         </div>
     </div>
 
 </section>
 
 
-<section id="similar-items">
-    {% for item in similar_items %}
-    {{item.item_name}}
-    <!-- <img src="{% static item.image_path %}" alt="aaaaaa"> -->
-    {% endfor %}
+<section id="similar-items-section">
+    <h3>Similar Items</h3>
+    <div id="similar-items">
+        {% for item in similar_items %}
+        <div class="similar-item">
+            <a href="{% url 'item' item.item_id %}">{{item.item_id}}</a>
+            <img src="{% static item.image_path %}" alt="aaaaaa">
+            <span>{{item.item_name}}</span>
+        </div>
+        {% endfor %}
+    </div>
 </section>
 
 {% endblock %}
