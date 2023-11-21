@@ -75,3 +75,15 @@ class SearchItem(forms.Form):
             'class': 'form-control mr-sm-2',
         }),
     )
+    
+    
+class MetricLimits(forms.Form):
+    min_qty_used = forms.DecimalField(required=False)    
+    max_qty_used = forms.DecimalField(required=False)    
+    min_qty_new = forms.DecimalField(required=False)    
+    max_qty_new = forms.DecimalField(required=False)    
+    
+    min_price_used = forms.DecimalField(required=False)    
+    max_price_used = forms.DecimalField(required=False)    
+    min_price_new = forms.DecimalField(required=False)    
+    max_price_new = forms.DecimalField(required=False)    
