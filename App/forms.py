@@ -1,7 +1,8 @@
 from django import forms
 from django.shortcuts import redirect
-from config import METRICS, ModelsConfig
+from config import METRICS, ModelsConfig, Input
 from .models import User
+from copy import copy
 
 class chartMetricSelect(forms.Form):
     choices = (
@@ -85,3 +86,19 @@ class MetricLimits(forms.Form):
     max_price_used = forms.DecimalField(required=False)    
     min_price_new = forms.DecimalField(required=False)    
     max_price_new = forms.DecimalField(required=False)    
+
+
+
+class Pages(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super(Pages, self).__init__(*args, **kwargs)
+
+        for button in Input.PAGE_BUTTON_INPUTS: 
+            self.fields[button['name']] = forms.CharField(
+                label='',
+                widget=forms.TextInput(attrs={
+                    'type': 'button',
+                    'value':button['value'],
+                    'onclick': 'submit()',
+                })
+            )
