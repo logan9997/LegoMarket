@@ -1,13 +1,13 @@
 from django import forms
 from django.shortcuts import redirect
-from config import METRICS, ModelsConfig, Input
+from config import ModelsConfig, Input
 from .models import User
 from copy import copy
 
 class chartMetricSelect(forms.Form):
     choices = (
         (metric, ' '.join(word.capitalize() for word in metric.split('_'))) 
-        for metric in METRICS
+        for metric in Input.METRICS
     )
     metric_select = forms.ChoiceField(
         choices=choices,
@@ -77,15 +77,13 @@ class SearchItem(forms.Form):
     
     
 class MetricLimits(forms.Form):
-    min_qty_used = forms.DecimalField(required=False)    
-    max_qty_used = forms.DecimalField(required=False)    
-    min_qty_new = forms.DecimalField(required=False)    
-    max_qty_new = forms.DecimalField(required=False)    
-    
-    min_price_used = forms.DecimalField(required=False)    
-    max_price_used = forms.DecimalField(required=False)    
-    min_price_new = forms.DecimalField(required=False)    
-    max_price_new = forms.DecimalField(required=False)    
+    def __init__(self, *args, **kwargs):
+        super(MetricLimits, self).__init__(*args, **kwargs)
+        for metric in Input.METRICS:
+            for limit in ['min', 'max']:
+                field_name = f'{limit}_{metric}'
+                self.fields[field_name] = forms.DecimalField(required=False)    
+       
 
 
 
