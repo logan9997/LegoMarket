@@ -3,8 +3,6 @@ from django.shortcuts import redirect
 from config import METRICS, ModelsConfig
 from .models import User
 
-
-
 class chartMetricSelect(forms.Form):
     choices = (
         (metric, ' '.join(word.capitalize() for word in metric.split('_'))) 
@@ -66,7 +64,7 @@ class SignUp(forms.Form):
     
 
 class SearchItem(forms.Form):
-    search_value = forms.CharField(
+    q = forms.CharField(
         label='',
         max_length=ModelsConfig.Length.ITEM_NAME,
         widget= forms.TextInput(attrs={
