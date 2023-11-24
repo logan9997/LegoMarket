@@ -1,12 +1,12 @@
 from django.urls import path
 from .views import (
-    home, item, login, signup, search_form, search
+    home, item, login, signup, search, 
 )
 
 urlpatterns = [
     path('', home.home, name='home'),
-    path('search_form', search_form.search_form, name='search_form'),
     path('search/', search.SearchView.as_view(), name='search'),
+    path('search_form_handler', search.search_form_handler, name='search_form_handler'),
     path('item/<str:item_id>/', item.ItemView.as_view(), name='item'),
     path('login/', login.LoginView.as_view(), name='login'),
     path('signup/', signup.SignUpView.as_view(), name='signup'),
