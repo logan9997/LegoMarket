@@ -67,7 +67,7 @@ class UpdateMetric {
 	get_metric_percentage_difference(index) {
 		let hovered_metric = this.data[index]
 		if (hovered_metric == 0) {
-			return 100
+			return '(+100%)'
 		}
 		let percentage_difference = (hovered_metric - this.data[0]) / hovered_metric * 100
 		percentage_difference = Math.round(percentage_difference * 100) / 100
