@@ -1,6 +1,7 @@
 from django import forms
 from config import ModelsConfig, Input
 from .models import User
+from django.http import HttpRequest
 
 class chartMetricSelect(forms.Form):
     choices = (
@@ -76,10 +77,18 @@ class SearchItem(forms.Form):
     
 class MetricLimits(forms.Form):
     def __init__(self, *args, **kwargs):
+        self.request:HttpRequest = kwargs.pop('request')
         super(MetricLimits, self).__init__(*args, **kwargs)
+        self.set_fields()
+        self.set_initial()
+
+    def set_fields(self):
         for metric in Input.METRICS:
             for limit in ['min', 'max']:
                 field_name = f'{limit}_{metric}'
                 self.fields[field_name] = forms.DecimalField(required=False)    
-       
 
+    def set_initial(self):
+        self.initial = {
+            field: self.request.GET.get(field, 0) for field in self.fields
+        }
