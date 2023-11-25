@@ -2,7 +2,6 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import HttpResponse, redirect
 from django.views.generic import TemplateView
 from ..models import Item
-from django.urls import reverse
 from ..forms import MetricLimits
 from config import ITEMS_PER_PAGE
 from typing import Any
@@ -18,8 +17,8 @@ class SearchView(TemplateView):
 
     def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         self.title = 'Search'
-        query = request.GET.get('q', '')
-        self.items = self.get_items(query)
+        self.query = request.GET.get('q', '')
+        self.items = self.get_items(self.query)
         self.current_page = get_current_page(request)
         self.last_page = round(len(self.items) / ITEMS_PER_PAGE)
         self.current_page = self.validate_current_page()
@@ -32,6 +31,7 @@ class SearchView(TemplateView):
             'title': self.title,
             'items': self.items[self.current_page * ITEMS_PER_PAGE : (self.current_page + 1) * ITEMS_PER_PAGE],
             'current_page': self.current_page,
+            'query': self.query,
             'last_page': self.last_page,
             'forms': {
                 'filters': MetricLimits(initial={
@@ -46,7 +46,7 @@ class SearchView(TemplateView):
     
     def get_items(self, query, orders=('item_type', 'item_id'), filters={}):
         items = Item.objects.filter(
-            Q(item_id__contains=query) | Q(item_name__contains=query), **filters
+            Q(item_id__icontains=query) | Q(item_name__icontains=query), **filters
         ).order_by(*orders)
         return items
     
