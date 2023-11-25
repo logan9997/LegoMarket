@@ -1,25 +1,15 @@
-from django import http
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import HttpResponse, redirect
-from django.views.generic import TemplateView, FormView
-from ..models import Item, Price
+from django.views.generic import TemplateView
+from ..models import Item
+from django.urls import reverse
 from ..forms import MetricLimits
+from config import ITEMS_PER_PAGE
 from typing import Any
-from django.http import QueryDict
+from django.db.models import Q
+from utils import get_current_page
 
 def search_form_handler(request: HttpRequest):
-    if request.method == 'GET':
-        form = MetricLimits(request.GET)
-        if form.is_valid():
-            params = QueryDict(mutable=True)
-            for k,v in form.cleaned_data.items():
-                if v != 0:
-                    params[k] = v
-            params = params.urlencode()
-
-            if params != '':
-                return redirect('search/?' + params)
-            
     return redirect('search/')
 
 
@@ -28,25 +18,45 @@ class SearchView(TemplateView):
 
     def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         self.title = 'Search'
+        query = request.GET.get('q', '')
+        self.items = self.get_items(query)
+        self.current_page = get_current_page(request)
+        self.last_page = round(len(self.items) / ITEMS_PER_PAGE)
+        self.current_page = self.validate_current_page()
         self.request = request
-        self.form = MetricLimits(initial={
-            field: request.GET.get(field, 0) for field in MetricLimits().fields
-        })
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         context.update({
             'title': self.title,
-            'items':self.get_items(),
-            'forms': self.form
+            'items': self.items[self.current_page * ITEMS_PER_PAGE : (self.current_page + 1) * ITEMS_PER_PAGE],
+            'current_page': self.current_page,
+            'last_page': self.last_page,
+            'forms': {
+                'filters': MetricLimits(initial={
+                    field: self.request.GET.get(field, 0) for field in MetricLimits().fields
+                })
+            }
         })
         return context
     
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         return super().get(request, *args, **kwargs)
-
-    def get_items(self, orders=('item_type', 'item_id'), filters={}):
-        items = Item.objects.filter(**filters).order_by(*orders)
+    
+    def get_items(self, query, orders=('item_type', 'item_id'), filters={}):
+        items = Item.objects.filter(
+            Q(item_id__contains=query) | Q(item_name__contains=query), **filters
+        ).order_by(*orders)
         return items
-        
+    
+    def validate_current_page(self) -> None:
+        try:
+            current_page = int(self.current_page)
+        except:
+            return 1
+        if current_page <= 0:
+            current_page = 1
+        elif current_page > self.last_page:
+            current_page = self.last_page
+        return current_page
