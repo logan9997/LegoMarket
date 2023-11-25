@@ -1,5 +1,6 @@
 from typing import Any
 import time
+from django.http import HttpRequest
 
 def item_type_convert(item_type:str) -> str:
     '''
@@ -28,6 +29,18 @@ def metric_convert(metric) -> str:
         return 'Price New'
 
     return metrics[metric]
+
+
+def get_current_page(request: HttpRequest, key='pg') -> int:
+    '''
+    Get current page from request.GET
+    '''
+    current_page = request.GET.get(key)
+    try:
+        current_page = int(current_page)
+    except:
+        current_page = 1
+    return current_page
 
 
 def clean_html_codes(string:str) -> str:
