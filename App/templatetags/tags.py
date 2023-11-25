@@ -57,3 +57,8 @@ def insert(iterable, char_and_index:str):
     iterable = list(str(iterable))
     iterable.insert(index, char)
     return ''.join(iterable)
+
+
+@register.filter
+def add(num1, num2) -> int:
+    return num1 + num2
