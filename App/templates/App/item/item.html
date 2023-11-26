@@ -65,16 +65,16 @@
         <div id="chart-container" class="item-div">
             <div id="current-metric-container">
                 <div id="chart-metrics">
-                    <span id="current-metric-name">{{metric_select|metric_convert}}</span>
-                    <span id="current-metric">{% if 'price' in metric_select %}£{% endif %}{{chart_metrics|index:-1}}</span>
+                    <span id="current-metric-name">{{chart_metric|metric_convert}}</span>
+                    <span id="current-metric">{% if 'price' in chart_metric %}£{% endif %}{{chart_metrics|index:-1}}</span>
                     <span id="metric-difference">
-                        {%if 'price' in metric_select %} 
+                        {%if 'price' in chart_metric %} 
                         {{metric_difference|add_sign|insert:"£,1"}} 
                         {% else %}
                         {{metric_difference|add_sign}}
                         {% endif %}
                     </span>
-                    <span id="metric-percentage-difference">({{metric_percentage_difference}}%)</span>
+                    <span id="metric-percentage-difference">({{metric_percentage_difference|add_sign}}%)</span>
                 </div>
                 <span id="current-date"></span>
             </div>
@@ -117,21 +117,20 @@
 
 {% endblock %}
 
-{% block script %} 
+{% block script %}
+
+{{chart_metric|json_script:"chart-metric"}}
+
 <script>
     const url_params = new URLSearchParams(window.location.search)
 
-    let form = document.getElementById('id_metric_select')
+    let form = document.getElementById('id_chart_metric')
     let labels = form.getElementsByTagName('label')
-
-    var metric_select = url_params.get('metric_select')
-    if (metric_select == null) {
-        metric_select = 'price_new'
-    }
+    let chart_metric = JSON.parse(document.getElementById('chart-metric').textContent)
 
     for (let i = 0; i < labels.length; i ++) {
         let input = labels[i].getElementsByTagName('input')[0]
-        if (input.value == metric_select) {
+        if (input.value == chart_metric) {
             console.log(input)
             labels[i].setAttribute('class', 'bg-primary')
             break

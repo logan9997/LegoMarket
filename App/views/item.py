@@ -7,6 +7,7 @@ from decimal import Decimal
 from ..forms import chartMetricSelect
 from fuzzywuzzy import fuzz
 from utils import timer
+from config import METRICS
 
 class ItemView(TemplateView):
     template_name = 'App/item/item.html'
@@ -28,7 +29,7 @@ class ItemView(TemplateView):
         context.update({
             'title': self.title,
             'item_info': self.get_item_info(),
-            'metric_select':self.selected_chart_metric,
+            'chart_metric':self.get_selected_chart_metric(),
             'chart_metrics': chart_metrics,
             'chart_dates': self.get_chart_data('date'),
             'metric_difference':chart_metrics[-1] - chart_metrics[0],
@@ -50,7 +51,11 @@ class ItemView(TemplateView):
         return False
 
     def get_selected_chart_metric(self) -> str:
-        return self.request.GET.get('metric_select', 'price_new')
+        default_value = 'price_new'
+        selected_metric =  self.request.GET.get('chart_metric', default_value)
+        if selected_metric not in METRICS:
+            return default_value
+        return selected_metric
     
     def get_item_info(self):
         return Item.objects.get(item_id=self.item_id)

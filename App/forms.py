@@ -1,14 +1,15 @@
 from django import forms
-from config import ModelsConfig, Input
+from config import ModelsConfig, Input, METRICS
 from .models import User
 from django.http import HttpRequest
+from decimal import Decimal
 
 class chartMetricSelect(forms.Form):
     choices = (
         (metric, ' '.join(word.capitalize() for word in metric.split('_'))) 
-        for metric in Input.METRICS
+        for metric in METRICS
     )
-    metric_select = forms.ChoiceField(
+    chart_metric = forms.ChoiceField(
         choices=choices,
         widget=forms.RadioSelect(attrs={
             'oninput': 'submit()',
@@ -83,12 +84,12 @@ class MetricLimits(forms.Form):
         self.set_initial()
 
     def set_fields(self):
-        for metric in Input.METRICS:
+        for metric in METRICS:
             for limit in ['min', 'max']:
                 field_name = f'{limit}_{metric}'
                 self.fields[field_name] = forms.DecimalField(required=False)    
 
     def set_initial(self):
         self.initial = {
-            field: self.request.GET.get(field, 0) for field in self.fields
+            field: self.request.GET.get(field, Decimal('0')) for field in self.fields
         }

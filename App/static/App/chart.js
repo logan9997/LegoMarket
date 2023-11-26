@@ -8,21 +8,21 @@ class UpdateMetric {
 		this.current_date = document.getElementById('current-date')
 		this.metric_difference = document.getElementById('metric-difference')
 		this.metric_percentage_difference = document.getElementById('metric-percentage-difference')		
-		this.metric_select = this.get_metric_select()
+		this.chart_metric = this.get_chart_metric()
 		this.end_index = this.data.length-1
 
 	}
 
-	get_metric_select() {
-		let metric_select = new URLSearchParams(window.location.search).get('metric_select')
-		if (metric_select == null) {
+	get_chart_metric() {
+		let chart_metric = new URLSearchParams(window.location.search).get('chart_metric')
+		if (chart_metric == null) {
 			return 'price_new'
 		}
-		return metric_select
+		return chart_metric
 	}
 
 	get_current_metric(current_metric) {
-		if (this.metric_select.includes('price')) {
+		if (this.chart_metric.includes('price')) {
 			current_metric = `£${current_metric}` 
 			current_metric = this.zero_pad(current_metric)
 		}
@@ -33,7 +33,7 @@ class UpdateMetric {
 		let difference = this.data[index] - this.data[0]
 		difference = Math.round(difference * 100) / 100
 		difference = this.add_sign(difference)
-		if (this.metric_select.includes('price')) {
+		if (this.chart_metric.includes('price')) {
 			difference = this.zero_pad(difference)
 			let difference_chars = difference.split('')
 			difference_chars.splice(1, 0, '£')
