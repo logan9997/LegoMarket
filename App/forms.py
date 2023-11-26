@@ -87,7 +87,7 @@ class MetricLimits(forms.Form):
         for metric in METRICS:
             for limit in ['min', 'max']:
                 field_name = f'{limit}_{metric}'
-                self.fields[field_name] = forms.DecimalField(required=False)    
+                self.fields[field_name] = forms.DecimalField(required=False, min_value=0)    
 
     def set_initial(self):
         self.initial = {
