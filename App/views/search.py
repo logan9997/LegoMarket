@@ -2,11 +2,11 @@ from django import http
 from django.http import HttpRequest, HttpResponse, QueryDict
 from django.shortcuts import HttpResponse, redirect
 from django.views.generic import TemplateView, View
-from ..models import Item
+from ..models import Item, Price
 from ..forms import MetricLimits
 from config import ITEMS_PER_PAGE
 from typing import Any
-from django.db.models import Q
+from django.db.models import Q, F
 from utils import get_current_page
 import math
 
@@ -25,7 +25,7 @@ class SearchFormHandler(View):
         return redirect('search/?' + params_string)
     
     def get_previous_url_params(self):
-        previous_url = self.request.META['HTTP_REFERER']
+        previous_url:str = self.request.META['HTTP_REFERER']
         params = None
         if '?' in previous_url:
             params = previous_url.split('?')[1]
@@ -55,7 +55,7 @@ class SearchFormHandler(View):
     def filter_out_params(self, params: QueryDict):
         new_params = QueryDict(mutable=True)
         for k, v in params.items():
-            if v != '0':
+            if v != '0' or v.isalnum():
                 new_params[k] = v
         return new_params
 
@@ -67,7 +67,8 @@ class SearchView(TemplateView):
         self.title = 'Search'
         self.request = request
         self.query = request.GET.get('q', '')
-        self.items = self.get_items(self.query)
+        self.filters = self.get_metric_filters()
+        self.items = self.get_items(self.query, filters=self.filters)
         self.last_page = math.ceil(len(self.items) / ITEMS_PER_PAGE)
         self.current_page = self.validate_current_page(get_current_page(request))
         return super().dispatch(request, *args, **kwargs)
@@ -89,19 +90,43 @@ class SearchView(TemplateView):
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         return super().get(request, *args, **kwargs)
     
-    def get_items(self, query, orders=('item_type', 'item_id'), filters={}):
+    def get_items(self, query, orders=('item_id', 'item_type'), filters={}):
         items = Item.objects.filter(
-            Q(item_id__icontains=query) | Q(item_name__icontains=query), **filters
-        ).order_by(*orders)
+            Q(item_id__icontains=query) | Q(item_name__icontains=query), 
+            **filters
+        ).order_by(*orders).values(
+            'item_id',
+            'item_name',
+            'item_type',
+            'image_path',
+            price_used=F('price__price_used'),
+            price_new=F('price__price_new'),
+            qty_used=F('price__qty_used'),
+            qty_new=F('price__qty_new'),
+        ).distinct('item_id')
         return items
+    
+    def get_metric_filters(self):
+        filtered_metrics = {
+            k: v for k, v in self.request.GET.items() 
+            if 'min' in k or 'max' in k
+        }
+        filters = {}
+        for k, v in filtered_metrics.items():
+            metric = k[4:]
+            if 'min' in k:
+                filters[f'price__{metric}__gte'] = v
+            else:
+                filters[f'price__{metric}__lte'] = v
+        return filters
     
     def validate_current_page(self, current_page) -> int:
         try:
             current_page = int(current_page)
         except:
             return 1
-        if current_page <= 0:
-            current_page = 1
-        elif current_page > self.last_page:
+        if current_page > self.last_page and self.last_page != 0:
             current_page = self.last_page
+        elif current_page <= 0:
+            current_page = 1
         return current_page
