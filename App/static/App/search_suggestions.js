@@ -2,7 +2,7 @@ class SearchSuggestions {
     constructor() {
         this.search_suggestions_container = document.getElementById('search-suggestions-container')
         this.form = document.getElementById('item-search-form')
-        this.input = document.getElementById('id_search_value')
+        this.input = document.getElementById('id_q')
         
         this.item_names = JSON.parse(document.getElementById('item-names').textContent)
         this.item_ids = JSON.parse(document.getElementById('item-ids').textContent)
