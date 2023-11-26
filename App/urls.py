@@ -6,7 +6,7 @@ from .views import (
 urlpatterns = [
     path('', home.home, name='home'),
     path('search/', search.SearchView.as_view(), name='search'),
-    path('search_form_handler', search.search_form_handler, name='search_form_handler'),
+    path('search_form_handler', search.SearchFormHandler.as_view(), name='search_form_handler'),
     path('item/<str:item_id>/', item.ItemView.as_view(), name='item'),
     path('login/', login.LoginView.as_view(), name='login'),
     path('signup/', signup.SignUpView.as_view(), name='signup'),
