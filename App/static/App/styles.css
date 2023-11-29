@@ -1,5 +1,7 @@
-#id_search_value {
+#id_q {
     width: 36rem;
+    left: calc(50% - 18rem);
+    position: absolute;
 }
 
 #search-suggestions-container {
@@ -36,7 +38,7 @@
     display: block;
 }
 
-.search-suggestion .item-name-item-id-container{
+.search-suggestion .item-name-item-id-container {
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;

@@ -54,9 +54,8 @@
                     <a class="nav-link" href="#">Pricing</a>
                 </li>
             </ul> -->
-            <form action="{% url 'search_form_handler' %}" method="post" id="item-search-form"
-                class="form-inline position-absolute" style="left:calc(50% - 18rem)">
-                {% csrf_token %}
+            <form action="{% url 'search' %}" method="GET" id="item-search-form"
+                class="form-inline">
                 {% get_item_search_form as search_form %}
                 {{search_form}}
             </form>
@@ -64,7 +63,9 @@
     </nav>
     <div id="search-suggestions-container"></div>
 
+    <section id="block-content">
     {% block content %} {% endblock %}
+    </section>
 </body>
 {% block script %} {% endblock %}
 <script src="{% static 'App/search_suggestions.js' %}"></script>
