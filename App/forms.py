@@ -1,8 +1,13 @@
+from collections.abc import Mapping
+from typing import Any
 from django import forms
+from django.forms.utils import ErrorList
 from config import ModelsConfig, Input, METRICS
 from .models import User
 from django.http import HttpRequest
 from decimal import Decimal
+from django.db.models import Min, Max
+from utils import get_year_releaed
 
 class chartMetricSelect(forms.Form):
     choices = (
@@ -77,6 +82,7 @@ class SearchItem(forms.Form):
     
     
 class MetricLimits(forms.Form):
+    form_name = forms.CharField(widget=forms.HiddenInput(), required=False)
     def __init__(self, *args, **kwargs):
         self.request:HttpRequest = kwargs.pop('request')
         super(MetricLimits, self).__init__(*args, **kwargs)
@@ -93,3 +99,32 @@ class MetricLimits(forms.Form):
         self.initial = {
             field: self.request.GET.get(field, Decimal('0')) for field in self.fields
         }
+        self.initial['form_name'] = 'metric_limits'
+
+
+
+class ItemType(forms.Form):
+
+    def __init__(self, *args, **kwargs):
+        super(ItemType, self).__init__(*args, **kwargs)
+        self.set_initial()
+
+    form_name = forms.CharField(widget=forms.HiddenInput(), required=False)
+    item_type = forms.ChoiceField(
+        choices=(('M', 'Minifigure'), ('S', 'Set')),
+        widget=forms.RadioSelect(attrs={'onclick': 'submit()'})
+    )
+
+    def set_initial(self):
+        self.initial['form_name'] = 'item_type'
+
+
+class YearReleased(forms.Form):
+    
+    year_released = forms.IntegerField(
+        widget=forms.TextInput(attrs={
+            'type': 'range',
+            'min': get_year_releaed(Min),
+            'max':get_year_releaed(Max),
+        })
+    )
