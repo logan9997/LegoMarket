@@ -1,6 +1,7 @@
 from typing import Any
 import time
 from django.http import HttpRequest
+from App.models import Item
 
 def item_type_convert(item_type:str) -> str:
     '''
@@ -35,7 +36,7 @@ def get_current_page(request: HttpRequest, key='pg') -> int:
     '''
     Get current page from request.GET
     '''
-    current_page = request.GET.get(key)
+    current_page = request.GET.get(key, 1)
     try:
         current_page = int(current_page)
     except:
@@ -68,3 +69,8 @@ def timer(func: Any) -> Any:
         print(f'<{func.__name__}> finished in {round(finish, 5)} seconds.')
         return result
     return wrapper
+
+def get_year_releaed(limit:str):
+    return Item.objects.filter(year_released__gt=0).aggregate(
+        year_released=limit('year_released')
+    ).get('year_released')
