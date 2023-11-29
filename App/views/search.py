@@ -3,17 +3,54 @@ from django.http import HttpRequest, HttpResponse, QueryDict
 from django.shortcuts import HttpResponse, redirect
 from django.views.generic import TemplateView, View
 from ..models import Item, Price
-from ..forms import MetricLimits
+from ..forms import MetricLimits, ItemType, YearReleased
 from config import ITEMS_PER_PAGE
 from typing import Any
 from django.db.models import Q, F
 from utils import get_current_page
 import math
+from django import forms
+
+class Filters:
+
+    def __init__(self, request: HttpRequest) -> None:
+        self.request = request
+
+    def get_metric_filters(self) -> dict:
+        filtered_metrics = {
+            k: v for k, v in self.request.GET.items() 
+            if 'min' in k or 'max' in k
+        }
+        filters = {}
+        for k, v in filtered_metrics.items():
+            metric = k[4:]
+            if 'min' in k:
+                filters[f'price__{metric}__gte'] = v
+            else:
+                filters[f'price__{metric}__lte'] = v
+        return filters
+    
+    def get_item_type_filter(self) -> dict:
+        filters = {}
+        if self.request.GET.get('item_type') in ['S', 'M']:
+            filters['item_type'] = self.request.GET['item_type']
+        return filters
+    
+    def get_filters(self) -> dict:
+        filters = {}
+        for method in [self.get_item_type_filter, self.get_metric_filters]:
+            filters.update(method())
+        return filters
 
 class SearchFormHandler(View):
 
     def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         self.request = request
+        self.forms:dict[str, forms.Form] = {
+            'metric_limits': MetricLimits(self.request.GET, request=self.request),
+            'item_type': ItemType(self.request.GET),
+            'year_released':YearReleased(self.request.GET)
+        }
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request: HttpRequest, *args, **kwargs):
@@ -36,16 +73,19 @@ class SearchFormHandler(View):
         return '&'.join([f'{k}={v}' for k, v in params.items()])
 
     def get_new_params(self):
-        metric_limits = MetricLimits(self.request.GET, request=self.request)
-        if metric_limits.is_valid():
-            data:dict = metric_limits.cleaned_data
+        form_name = self.request.GET.get('form_name')
+        form = self.forms.get(form_name)
+        
+        if form.is_valid():
+            data:dict = form.cleaned_data
             params_string = self.params_string(data)
             params = QueryDict(params_string, mutable=True)  
-        return params
+            return params
+        return QueryDict()
 
-    def join_params(self, p1: dict, p2: dict):
-        p2.update(p1)
-        params = dict(p2)
+    def join_params(self, previous_params: dict, new_params: dict):
+        new_params.update(previous_params)
+        params = dict(new_params)
         for k, v in params.items():
             params[k] = v[0]
         params = self.params_string(params)
@@ -55,7 +95,7 @@ class SearchFormHandler(View):
     def filter_out_params(self, params: QueryDict):
         new_params = QueryDict(mutable=True)
         for k, v in params.items():
-            if v != '0' and v.isalnum():
+            if v not in ['0', 'None'] and k != 'form_name':
                 new_params[k] = v
         return new_params
 
@@ -67,7 +107,7 @@ class SearchView(TemplateView):
         self.title = 'Search'
         self.request = request
         self.query = request.GET.get('q', '')
-        self.filters = self.get_metric_filters()
+        self.filters = Filters(request).get_filters()
         self.items = self.get_items(self.query, filters=self.filters)
         self.last_page = math.ceil(len(self.items) / ITEMS_PER_PAGE)
         self.current_page = self.validate_current_page(get_current_page(request))
@@ -82,7 +122,9 @@ class SearchView(TemplateView):
             'query': self.query,
             'last_page': self.last_page,
             'forms': {
-                'filters': MetricLimits(request=self.request)
+                'filters': MetricLimits(request=self.request),
+                'item_type': ItemType(),
+                'year_released': YearReleased()
             }
         })
         return context
@@ -106,19 +148,7 @@ class SearchView(TemplateView):
         ).distinct('item_id')
         return items
     
-    def get_metric_filters(self):
-        filtered_metrics = {
-            k: v for k, v in self.request.GET.items() 
-            if 'min' in k or 'max' in k
-        }
-        filters = {}
-        for k, v in filtered_metrics.items():
-            metric = k[4:]
-            if 'min' in k:
-                filters[f'price__{metric}__gte'] = v
-            else:
-                filters[f'price__{metric}__lte'] = v
-        return filters
+
     
     def validate_current_page(self, current_page) -> int:
         try:
