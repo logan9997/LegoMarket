@@ -55,7 +55,7 @@ class SearchFormHandler(View):
     def filter_out_params(self, params: QueryDict):
         new_params = QueryDict(mutable=True)
         for k, v in params.items():
-            if v != '0' or v.isalnum():
+            if v != '0' and v.isalnum():
                 new_params[k] = v
         return new_params
 
