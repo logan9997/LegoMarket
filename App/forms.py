@@ -136,3 +136,22 @@ class YearReleased(forms.Form):
 
     def set_initial(self):
         self.initial['form_name'] = 'year_released'
+
+
+class Order(forms.Form):
+
+    def __init__(self, *args, **kwargs):
+        super(Order, self).__init__(*args, **kwargs)
+        self.set_initial()
+
+    form_name = forms.CharField(widget=forms.HiddenInput(), required=False)
+    order = forms.ChoiceField(
+        choices=(
+            ('price_new', 'Price Low to High'),
+            ('-price_new', 'Price High to Low'),
+        )
+    )
+
+    def set_initial(self):
+        self.initial['form_name'] = 'order'
+
