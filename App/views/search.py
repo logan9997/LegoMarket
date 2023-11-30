@@ -1,8 +1,7 @@
-from django import http
 from django.http import HttpRequest, HttpResponse, QueryDict
 from django.shortcuts import HttpResponse, redirect
 from django.views.generic import TemplateView, View
-from ..models import Item, Price
+from ..models import Item
 from ..forms import MetricLimits, ItemType, YearReleased
 from config import ITEMS_PER_PAGE
 from typing import Any
@@ -35,11 +34,20 @@ class Filters:
         if self.request.GET.get('item_type') in ['S', 'M']:
             filters['item_type'] = self.request.GET['item_type']
         return filters
-    
-    def get_filters(self) -> dict:
+
+    def get_year_released_filter(self) -> dict:
         filters = {}
-        for method in [self.get_item_type_filter, self.get_metric_filters]:
-            filters.update(method())
+        year_released = self.request.GET.get('year_released')
+        if year_released != None:
+            filters['year_released'] = year_released
+        return filters
+    
+    def filters(self) -> dict:
+        filters = {}
+        get_filter_methods = [m for m in dir(self) if m[:3] == 'get']
+        print(get_filter_methods)
+        for method in get_filter_methods:
+            filters.update(getattr(self, method)())
         return filters
 
 class SearchFormHandler(View):
@@ -107,7 +115,7 @@ class SearchView(TemplateView):
         self.title = 'Search'
         self.request = request
         self.query = request.GET.get('q', '')
-        self.filters = Filters(request).get_filters()
+        self.filters = Filters(request).filters()
         self.items = self.get_items(self.query, filters=self.filters)
         self.last_page = math.ceil(len(self.items) / ITEMS_PER_PAGE)
         self.current_page = self.validate_current_page(get_current_page(request))
