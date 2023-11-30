@@ -120,7 +120,12 @@ class ItemType(forms.Form):
 
 
 class YearReleased(forms.Form):
-    
+
+    def __init__(self, *args, **kwargs):
+        super(YearReleased, self).__init__(*args, **kwargs)
+        self.set_initial()
+
+    form_name = forms.CharField(widget=forms.HiddenInput(), required=False)
     year_released = forms.IntegerField(
         widget=forms.TextInput(attrs={
             'type': 'range',
@@ -128,3 +133,6 @@ class YearReleased(forms.Form):
             'max':get_year_releaed(Max),
         })
     )
+
+    def set_initial(self):
+        self.initial['form_name'] = 'year_released'
