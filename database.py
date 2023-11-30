@@ -1,5 +1,7 @@
 import psycopg2 
 from environment_manager import Manager
+import os
+from datetime import datetime
 
 class DB:
 
@@ -7,6 +9,13 @@ class DB:
         psql_credentials = Manager.get_database_credentails('psycopg2')
         self.conn = psycopg2.connect(**psql_credentials)
         self.cursor = self.conn.cursor()
+
+    def backup(self) -> None:
+        db_name = Manager.get_value('DB_NAME')
+        dt = datetime.now().strftime('%Y_%m_%d_%H_%M')
+        save_path = f'dumps/{dt}.dump'
+        command = f'pg_dump -d {db_name} -F c -f {save_path}'
+        os.system(command)
 
     def select(self, sql, data=(), fetchone=False, flat=False, format=False):
         self.cursor.execute(sql, data)
@@ -67,4 +76,5 @@ class DB:
         self.insert(sql, data)
 
 if __name__ == '__main__':
-    pass
+    method = input('Call a method: ')
+    getattr(DB(), method)()
