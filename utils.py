@@ -1,7 +1,6 @@
 from typing import Any
 import time
 from django.http import HttpRequest
-from App.models import Item
 
 def item_type_convert(item_type:str) -> str:
     '''
@@ -71,6 +70,7 @@ def timer(func: Any) -> Any:
     return wrapper
 
 def get_year_releaed(limit:str):
+    from App.models import Item
     return Item.objects.filter(year_released__gt=0).aggregate(
         year_released=limit('year_released')
     ).get('year_released')
