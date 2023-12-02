@@ -111,7 +111,7 @@ class ItemType(forms.Form):
 
     form_name = forms.CharField(widget=forms.HiddenInput(), required=False)
     item_type = forms.ChoiceField(
-        choices=(('M', 'Minifigure'), ('S', 'Set')),
+        choices=(('M', 'Minifigure'), ('S', 'Set'), ('All', 'All')),
         widget=forms.RadioSelect(attrs={'onclick': 'submit()'})
     )
 
