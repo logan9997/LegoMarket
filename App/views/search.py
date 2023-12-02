@@ -31,9 +31,9 @@ class Filters:
         for k, v in filtered_metrics.items():
             metric = k[4:]
             if 'min' in k:
-                filters[f'price__{metric}__gte'] = v
+                filters[f'{metric}__gte'] = v
             else:
-                filters[f'price__{metric}__lte'] = v
+                filters[f'{metric}__lte'] = v
         return filters
     
     def get_item_type_filter(self) -> dict:
