@@ -17,7 +17,6 @@ class Filters:
 
     def order(self):
         order = self.request.GET.get('order')
-        print('ORDER!!', order)
         if order != None:
             return (f'price__{order}', )
         return ()
@@ -50,6 +49,10 @@ class Filters:
         return filters
     
     def filters(self) -> dict:
+        form = self.request.GET.get('clear-filter')
+        if form != None:
+            self.clear(form)
+
         filters = {}
         get_filter_methods = [m for m in dir(self) if m[:3] == 'get']
         for method in get_filter_methods:
@@ -88,15 +91,18 @@ class SearchFormHandler(View):
         return '&'.join([f'{k}={v}' for k, v in params.items()])
 
     def get_new_params(self):
-        form_name = self.request.GET.get('form_name')
+        url_params = QueryDict(self.request.get_full_path())
+        form_name = url_params.get('form_name')
         form = self.forms.get(form_name)
+        if form == None or not form.is_valid():
+            return QueryDict()
+
         if form.is_valid():
             data:dict = form.cleaned_data
             params_string = self.params_string(data)
             params = QueryDict(params_string, mutable=True)  
             return params
-        return QueryDict()
-
+        
     def join_params(self, previous_params: dict, new_params: dict):
         new_params.update(previous_params)
         params = dict(new_params)
@@ -138,8 +144,8 @@ class SearchView(TemplateView):
             'last_page': self.last_page,
             'forms': {
                 'filters': MetricLimits(request=self.request),
-                'item_type': ItemType(),
-                'year_released': YearReleased(),
+                'item_type': ItemType(initial={'item_type': self.request.GET.get('item_type', 'All')}),
+                'year_released': YearReleased(initial={'year_released': self.request.GET.get('year_released', '')}),
                 'order': Order()
             }
         })
