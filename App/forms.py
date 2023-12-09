@@ -4,10 +4,11 @@ from django import forms
 from django.forms.utils import ErrorList
 from config import ModelsConfig, Input, METRICS
 from .models import User
-from django.http import HttpRequest
+from django.http import HttpRequest, QueryDict
 from decimal import Decimal
 from django.db.models import Min, Max
-from utils import get_year_releaed
+from django.shortcuts import redirect
+from utils import get_year_released_limit
 
 class chartMetricSelect(forms.Form):
     choices = (
@@ -72,6 +73,7 @@ class SignUp(forms.Form):
 class SearchItem(forms.Form):
     q = forms.CharField(
         label='',
+        error_messages={'required': ''},
         max_length=ModelsConfig.Length.ITEM_NAME,
         widget= forms.TextInput(attrs={
             'oninput': 'search_suggestions.show_search_suggestions()',
@@ -81,80 +83,19 @@ class SearchItem(forms.Form):
     )
     
     
-class MetricLimits(forms.Form):
-    form_name = forms.CharField(widget=forms.HiddenInput(), required=False)
-    def __init__(self, *args, **kwargs):
-        self.request:HttpRequest = kwargs.pop('request')
-        super(MetricLimits, self).__init__(*args, **kwargs)
-        self.set_fields()
-        self.set_initial()
-
-    def set_fields(self):
-        for metric in METRICS:
-            for limit in ['min', 'max']:
-                field_name = f'{limit}_{metric}'
-                self.fields[field_name] = forms.DecimalField(required=False, min_value=0)    
-
-    def set_initial(self):
-        self.initial = {
-            field: self.request.GET.get(field, Decimal('0')) for field in self.fields
-        }
-        self.initial['form_name'] = 'metric_limits'
-
-
-
-class ItemType(forms.Form):
-
-    def __init__(self, *args, **kwargs):
-        super(ItemType, self).__init__(*args, **kwargs)
-        self.set_initial()
-
-    form_name = forms.CharField(widget=forms.HiddenInput(), required=False)
-    item_type = forms.ChoiceField(
-        choices=(('M', 'Minifigure'), ('S', 'Set'), ('All', 'All')),
-        widget=forms.RadioSelect(attrs={'onclick': 'submit()'})
-    )
-
-    def set_initial(self):
-        self.initial['form_name'] = 'item_type'
-
 class YearReleased(forms.Form):
-
-    def __init__(self, *args, **kwargs):
-        super(YearReleased, self).__init__(*args, **kwargs)
-        self.set_fields()
-        self.set_initial()
-
-    def set_fields(self):
-        self.fields['form_name'] = forms.CharField(widget=forms.HiddenInput(), required=False)
-        label = self.initial.get('year_released', '')
-        self.fields['year_released'] = forms.IntegerField(
-            label=f'Year released {label}',
-            widget=forms.TextInput(attrs={
+    form_name = forms.CharField(
+        widget=forms.HiddenInput(attrs={'value': 'year_released'}), 
+        required=False
+    )
+    year_released = forms.IntegerField(
+        widget=forms.TextInput(
+            attrs={
                 'type': 'range',
-                'min': get_year_releaed(Min),
-                'max':get_year_releaed(Max),
-            })
-        )
-
-    def set_initial(self):
-        self.initial['form_name'] = 'year_released'
-
-
-class Order(forms.Form):
-
-    def __init__(self, *args, **kwargs):
-        super(Order, self).__init__(*args, **kwargs)
-        self.set_initial()
-
-    form_name = forms.CharField(widget=forms.HiddenInput(), required=False)
-    order = forms.ChoiceField(
-        choices=(
-            ('price_new', 'Price Low to High'),
-            ('-price_new', 'Price High to Low'),
-        )
+                'min': get_year_released_limit(Min), 
+                'max': get_year_released_limit(Max)
+            }
+        ),
     )
 
-    def set_initial(self):
-        self.initial['form_name'] = 'order'
 
