@@ -14,9 +14,6 @@ response = Response()
 
 class DataCollect:
 
-    def __init__(self) -> None:
-        pass
-
     def update_prices(self) -> None:
         items:list[dict] = db.get_item_ids_types(format=True)
         for item in items:
@@ -61,6 +58,7 @@ class DataCollect:
 
                 data = [item_id, item_name, item_type, year_released]
                 db.insert_item(data)
+        scraper.driver.quit()    
 
     def download_images(self) -> None:
         items = db.get_item_ids_types(format=True)
