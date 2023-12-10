@@ -3,24 +3,28 @@ from django.http import HttpRequest, HttpResponse, QueryDict
 from django.shortcuts import HttpResponse, redirect
 from django.views.generic import TemplateView, View
 from ..models import Item, Price
-from ..forms import YearReleased
+from ..forms import YearReleased, ItemType, MetricLimits
 from config import ITEMS_PER_PAGE
 from typing import Any
 from django.db.models import Q, F, Subquery, OuterRef
 from utils import get_current_page
 import math
+from decimal import Decimal
 
 class FormHandler(View):
 
-    def __init__(self) -> None:
+    def __init__(self):
         self.forms = {
-            'year_released': YearReleased
+            'year_released': YearReleased,
+            'item_type': ItemType,
+            'metric_limits': MetricLimits
         }
 
     def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         current_params = self.get_current_params()
         new_params = self.get_new_params()
         params = self.join_params(current_params, new_params)
+        params = self.validate_params(params)
         qstring = params.urlencode()
         host = self.request.get_host()
         return redirect(f'http://{host}/search/?{qstring}')
@@ -47,6 +51,15 @@ class FormHandler(View):
             return QueryDict(new_params)
         return QueryDict()
     
+    def validate_params(self, params: QueryDict):
+        valid_params = QueryDict(mutable=True)
+        for k, v in params.items():
+            if v not in [0, '0', Decimal(0), None]:
+                print('ADDING', k, v)
+                valid_params[k] = v
+        return valid_params
+
+
     def join_params(self, current:QueryDict, new:QueryDict) -> QueryDict:
         current._mutable = True
         for k, v in new.items():
@@ -54,14 +67,57 @@ class FormHandler(View):
         return current
 
     
+class Filters:
+
+    def __init__(self, request:HttpRequest) -> None:
+        self.request = request
+
+    def year_released(self):
+        year_released = self.request.GET.get('year_released')
+        if year_released:
+            return {'year_released': year_released}
+        return {}
+    
+    def item_type(self):
+        item_type = self.request.GET.get('item_type', 'All')
+        if item_type != 'All':
+            return {'item_type': item_type}
+        return {}
+    
+    def metrics_limits(self):
+        filtered_metrics = {
+            k: v for k, v in self.request.GET.items() 
+            if 'min' in k or 'max' in k
+        }
+        filters = {}
+        for k, v in filtered_metrics.items():
+            metric = k[4:]
+            if 'min' in k:
+                filters[f'{metric}__gte'] = v
+            else:
+                filters[f'{metric}__lte'] = v
+        return filters
+    
+    def get_filters(self):
+        filters = {}
+        get_filters = [self.year_released, self.item_type, self.metrics_limits]
+        for method in get_filters:
+            filters.update(method())
+        return filters
+
 class SearchView(TemplateView):
     template_name = 'App/search/search.html'    
 
     def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        self.forms = {
+            'year_released': YearReleased(initial=YearReleased.set_initial(request)),
+            'item_type': ItemType(initial=ItemType.set_initial(request)),
+            'metric_limits': MetricLimits(initial=MetricLimits.set_initial(request))
+        }
         self.title = 'Search'
         self.request = request
         self.query = request.GET.get('q', '')
-        self.filters = {}
+        self.filters = Filters(request).get_filters()
         self.order = ()
         self.items = self.get_items(self.query, filters=self.filters, orders=self.order)
         self.last_page = math.ceil(len(self.items) / ITEMS_PER_PAGE)
@@ -76,14 +132,11 @@ class SearchView(TemplateView):
             'current_page': self.current_page,
             'query': self.query,
             'last_page': self.last_page,
-            'forms': {
-                'year_released': YearReleased
-            }
+            'forms': self.forms
         })
         return context
     
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
-
         return super().get(request, *args, **kwargs)
     
     def get_items(self, query, orders=('item_id', 'item_type'), filters={}):
