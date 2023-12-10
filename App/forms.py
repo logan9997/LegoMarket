@@ -93,9 +93,56 @@ class YearReleased(forms.Form):
             attrs={
                 'type': 'range',
                 'min': get_year_released_limit(Min), 
-                'max': get_year_released_limit(Max)
+                'max': get_year_released_limit(Max),
+                'onchange': 'submit()'
             }
         ),
     )
 
+    def set_initial(request):
+        return {'year_released': request.GET.get('year_released')}
 
+
+class ItemType(forms.Form):
+    form_name = forms.CharField(
+        widget=forms.HiddenInput(attrs={'value': 'item_type'}), 
+        required=False
+    )
+
+    item_type = forms.ChoiceField(
+        choices=(('M', 'Minifigure'), ('S', 'Set'), ('All', 'All')),
+        widget=forms.RadioSelect(attrs={'onclick': 'submit()'})
+    )
+
+    def set_initial(request):
+        return {'item_type': request.GET.get('item_type', 'All')}
+
+
+class MetricLimits(forms.Form):
+
+    form_name = forms.CharField(
+        widget=forms.HiddenInput(attrs={'value': 'metric_limits'}), 
+        required=False
+    )
+    min_price_new = forms.DecimalField(min_value=0, required=False, initial=0, label='Min Price (New)')
+    max_price_new = forms.DecimalField(min_value=0, required=False, initial=0, label='Max Price (New)')
+    min_price_used = forms.DecimalField(min_value=0, required=False, initial=0, label='Min Price (Used)')
+    max_price_used = forms.DecimalField(min_value=0, required=False, initial=0, label='Max Price (Used)')
+    min_qty_new = forms.IntegerField(min_value=0, required=False, initial=0, label='Min Qty (New)')
+    max_qty_new = forms.IntegerField(min_value=0, required=False, initial=0, label='Max Qty (New)')
+    min_qty_used = forms.IntegerField(min_value=0, required=False, initial=0, label='Min Qty (Used)')
+    max_qty_used = forms.IntegerField(min_value=0, required=False, initial=0, label='Max Qty (Used)')
+
+
+    def set_initial(request):
+        initial = {
+            'min_price_new': request.GET.get('min_price_new', 0),
+            'max_price_new': request.GET.get('max_price_new', 0),
+            'min_price_used': request.GET.get('min_price_used', 0),
+            'max_price_used': request.GET.get('max_price_used', 0),
+            'min_qty_new': request.GET.get('min_qty_new', 0),
+            'max_qty_new': request.GET.get('max_qty_new', 0),
+            'min_qty_used': request.GET.get('min_qty_used', 0),
+            'max_qty_used': request.GET.get('max_qty_used', 0),
+        }
+        return initial
