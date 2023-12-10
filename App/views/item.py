@@ -6,7 +6,6 @@ from typing import Any
 from decimal import Decimal
 from ..forms import chartMetricSelect
 from fuzzywuzzy import fuzz
-from utils import timer
 from config import METRICS
 
 class ItemView(TemplateView):
@@ -14,14 +13,13 @@ class ItemView(TemplateView):
 
     def dispatch(self, request: HttpRequest, item_id:str, *args: Any, **kwargs: Any) -> HttpResponse:
         self.item_id = item_id
-        if not self.is_item_id_valid():
+        if not self.item_id_valid():
             return redirect('home')
         self.title = f'Item/{self.item_id}'
         self.selected_chart_metric = self.get_selected_chart_metric()
         self.request = request
         return super().dispatch(request, *args, **kwargs)
 
-    @timer
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         chart_metrics = self.get_chart_data(self.selected_chart_metric)
 
@@ -44,7 +42,7 @@ class ItemView(TemplateView):
         })
         return context
     
-    def is_item_id_valid(self) -> bool:
+    def item_id_valid(self) -> bool:
         item_ids = Item.objects.all().values_list('item_id', flat=True)
         if self.item_id in item_ids:
             return True
@@ -57,7 +55,7 @@ class ItemView(TemplateView):
             return default_value
         return selected_metric
     
-    def get_item_info(self):
+    def get_item_info(self) -> Item:
         return Item.objects.get(item_id=self.item_id)
         
     def get_chart_data(self, metric:str):
