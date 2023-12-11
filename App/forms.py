@@ -82,12 +82,56 @@ class SearchItem(forms.Form):
         }),
     )
     
-    
-class YearReleased(forms.Form):
+
+class ClearableForm(forms.Form):
+    clear = forms.BooleanField(
+        label='Clear', 
+        required=False, 
+        widget=forms.CheckboxInput(
+            attrs={
+                'onclick': 'submit()',
+                'label': 'Clear!',
+                'class': 'clear-button'
+            }
+        )
+    )
+
+
+class Order(ClearableForm):
+    form_name = forms.CharField(
+        widget=forms.HiddenInput(attrs={'value': 'order'}), 
+        required=False
+    )
+    order = forms.ChoiceField(
+        widget=forms.Select(attrs={'oninput': 'submit()'}),
+        choices=(
+            ('item_id', 'Item ID Asc'),
+            ('-item_id', 'Item ID Desc'),
+            ('item_name', 'Item Name Asc'),
+            ('-item_name', 'Item Name Desc'),
+            ('-year_released', 'Newest Release'),
+            ('year_released', 'Oldest Release'),
+            ('-price_new', 'Highest Price (New)'),
+            ('price_new', 'Lowest Price (New)'),
+            ('-price_used', 'Highest Price (Used)'),
+            ('price_used', 'Lowest Price (Used)'),
+            ('-qty_new', 'Highest Qty (New)'),
+            ('qty_new', 'Lowest Qty (New)'),
+            ('-qty_used', 'Highest Qty (Used)'),
+            ('qty_used', 'Lowest Qty (Used)'),
+            
+        ), 
+    )
+
+    def set_initial(request):
+        return {'order': request.GET.get('order')}
+
+class YearReleased(ClearableForm):
     form_name = forms.CharField(
         widget=forms.HiddenInput(attrs={'value': 'year_released'}), 
         required=False
     )
+
     year_released = forms.IntegerField(
         widget=forms.TextInput(
             attrs={
@@ -118,7 +162,7 @@ class ItemType(forms.Form):
         return {'item_type': request.GET.get('item_type', 'All')}
 
 
-class MetricLimits(forms.Form):
+class MetricLimits(ClearableForm):
 
     form_name = forms.CharField(
         widget=forms.HiddenInput(attrs={'value': 'metric_limits'}), 
