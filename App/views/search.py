@@ -3,13 +3,14 @@ from django.http import HttpRequest, HttpResponse, QueryDict
 from django.shortcuts import HttpResponse, redirect
 from django.views.generic import TemplateView, View
 from ..models import Item, Price
-from ..forms import YearReleased, ItemType, MetricLimits
+from ..forms import YearReleased, ItemType, MetricLimits, Order
 from config import ITEMS_PER_PAGE
 from typing import Any
 from django.db.models import Q, F, Subquery, OuterRef
 from utils import get_current_page
 import math
 from decimal import Decimal
+from django import forms
 
 class FormHandler(View):
 
@@ -17,10 +18,12 @@ class FormHandler(View):
         self.forms = {
             'year_released': YearReleased,
             'item_type': ItemType,
-            'metric_limits': MetricLimits
+            'metric_limits': MetricLimits,
+            'order': Order
         }
 
     def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        self.form = self.get_form()
         current_params = self.get_current_params()
         new_params = self.get_new_params()
         params = self.join_params(current_params, new_params)
@@ -28,6 +31,11 @@ class FormHandler(View):
         qstring = params.urlencode()
         host = self.request.get_host()
         return redirect(f'http://{host}/search/?{qstring}')
+    
+    def get_form(self) -> forms.Form:
+        form_name = self.request.GET.get('form_name')
+        form = self.forms.get(form_name)
+        return form(self.request.GET)
     
     def qstring(self, params:dict[str, str]) -> str:
         qstring = '&'.join([f'{k}={v}' for k, v in params.items()])
@@ -37,15 +45,15 @@ class FormHandler(View):
         previous_url:str = self.request.META.get('HTTP_REFERER')
         if '?' in previous_url:
             current_params = previous_url.split('?')[1]
-            return QueryDict(current_params)
+            current_params = QueryDict(current_params, mutable=True)
+            if 'clear' in self.form.data:
+                current_params = self.clear(current_params)
+            return current_params
         return QueryDict()
 
     def get_new_params(self) -> str:
-        form_name = self.request.GET.get('form_name')
-        form = self.forms.get(form_name)
-        form = form(self.request.GET)
-        if form.is_valid():
-            data:dict = form.cleaned_data
+        if self.form.is_valid() and 'clear' not in self.form.data:
+            data:dict = self.form.cleaned_data
             data.pop('form_name')
             new_params = self.qstring(data)
             return QueryDict(new_params)
@@ -54,11 +62,16 @@ class FormHandler(View):
     def validate_params(self, params: QueryDict):
         valid_params = QueryDict(mutable=True)
         for k, v in params.items():
-            if v not in [0, '0', Decimal(0), None]:
-                print('ADDING', k, v)
+            if v not in [0, '0', Decimal(0), None] and k != 'clear':
                 valid_params[k] = v
         return valid_params
-
+    
+    def clear(self, params: QueryDict) -> QueryDict:
+        fields = self.form.fields
+        for field in fields:
+            if field in params.keys():
+                params.pop(field)
+        return params
 
     def join_params(self, current:QueryDict, new:QueryDict) -> QueryDict:
         current._mutable = True
@@ -97,6 +110,12 @@ class Filters:
             else:
                 filters[f'{metric}__lte'] = v
         return filters
+
+    def get_order(self):
+        order = self.request.GET.get('order')
+        if order:
+            return order
+        return 'item_id'
     
     def get_filters(self):
         filters = {}
@@ -112,13 +131,14 @@ class SearchView(TemplateView):
         self.forms = {
             'year_released': YearReleased(initial=YearReleased.set_initial(request)),
             'item_type': ItemType(initial=ItemType.set_initial(request)),
-            'metric_limits': MetricLimits(initial=MetricLimits.set_initial(request))
+            'metric_limits': MetricLimits(initial=MetricLimits.set_initial(request)),
+            'order': Order(initial=Order.set_initial(request))
         }
         self.title = 'Search'
         self.request = request
         self.query = request.GET.get('q', '')
         self.filters = Filters(request).get_filters()
-        self.order = ()
+        self.order = Filters(request).get_order()
         self.items = self.get_items(self.query, filters=self.filters, orders=self.order)
         self.last_page = math.ceil(len(self.items) / ITEMS_PER_PAGE)
         self.current_page = self.validate_current_page(get_current_page(request))
@@ -139,7 +159,7 @@ class SearchView(TemplateView):
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         return super().get(request, *args, **kwargs)
     
-    def get_items(self, query, orders=('item_id', 'item_type'), filters={}):
+    def get_items(self, query, orders=('item_id'), filters={}):
         latest_date_query = Price.objects.filter(
             item=OuterRef('item_id')
         ).order_by('-date').values('date')[:1]
@@ -159,7 +179,7 @@ class SearchView(TemplateView):
         ).filter(
             Q(item__item_id__icontains=query) | Q(item_name__icontains=query),
             date=F('latest_date'), **filters
-        )
+        ).order_by(orders)
         return items
 
     def validate_current_page(self, current_page) -> int:
