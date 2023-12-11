@@ -2,6 +2,7 @@ import psycopg2
 from environment_manager import Manager
 import os
 from datetime import datetime
+from config import DATE_FORMAT
 
 class DB:
 
@@ -58,6 +59,16 @@ class DB:
         FROM "App_item"
         '''
         return self.select(sql, flat=True)
+
+    def get_updated_prices(self):
+        '''Return list of item_ids which have had their price info updated for today'''
+        todays_date = datetime.now().strftime(DATE_FORMAT)
+        sql = '''
+        SELECT item_id
+        FROM "App_price"
+        WHERE date = %s
+        '''
+        return self.select(sql ,data=(todays_date,), flat=True)
     
     def insert_price(self, data) -> None:
         sql = '''
