@@ -16,8 +16,13 @@ class DataCollect:
 
     def update_prices(self) -> None:
         items:list[dict] = db.get_item_ids_types(format=True)
+        updated_ids = db.get_updated_prices()
         for item in items:
             item_id = item['item_id']
+
+            if item_id in updated_ids:
+                continue
+
             date = datetime.today().strftime(DATE_FORMAT)
             
             data = [item_id, date]
