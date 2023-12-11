@@ -1,0 +1,87 @@
+{% extends 'App/base.html' %}
+{% load static %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'App/search.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<section id="forms">
+
+<form id="order-form" action="{% url 'search_form_hander' %}" method="get">
+    {{forms.order}}
+</form>
+
+<form id="year-released-form" action="{% url 'search_form_hander' %}" method="get">
+    {{forms.year_released}}
+</form>
+
+<form id="item-type-form" action="{% url 'search_form_hander' %}" method="get">
+    {{forms.item_type}}
+</form>
+
+<form id="metric-limits-form" action="{% url 'search_form_hander' %}" method="get">
+    {{forms.metric_limits.as_ul}}
+    <button type="submit">Go</button>
+</form>
+
+</section>
+
+<section id="items-section">
+    <div id="items">
+        {% for item in items %}
+        <a class="item-link" href="{% url 'item' item.item_id %}">
+            <div class="item">
+                <span>{{item.item_id}}</span>
+                <img src="{% static item.image_path %}" alt="??">
+                <span class="item-name">{{item.item_name}}</span>
+                <ul class="item-metrics">
+                    <li>£(N) {{item.price_new}}</li>
+                    <li>£(U) {{item.price_used}}</li>
+                    <li>Q(N) {{item.qty_new}}</li>
+                    <li>Q(U) {{item.qty_used}}</li>
+                </ul>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+
+    {% if last_page > 1%}
+    <div id="pages">
+        {% if current_page != 1 %}
+        <a href="{% url 'search' %}?q={{query}}&pg=1"><<</a>
+        <a href="{% url 'search' %}?q={{query}}&pg={{current_page|add:-1}}"><</a>
+        {% endif %}
+
+        {% if current_page != last_page%}
+        <a href="{% url 'search' %}?q={{query}}&pg={{current_page|add:1}}">></a>
+        <a href="{% url 'search' %}?q={{query}}&pg={{last_page}}">>></a>
+        {% endif %}
+    </div>
+    {% endif %}
+</section>
+
+{% endblock %}
+
+
+{% block script %}
+<script>
+    var year_released_form = document.getElementById('year-released-form')
+    let input = year_released_form.querySelector('input[type=range]')
+    let label = year_released_form.querySelector('label[for="id_year_released"]')
+    input.addEventListener('input', () => {
+        label.innerText = `Year Released : ${input.value}`
+    })
+
+    let url = window.location.href;
+    let searchParams = new URLSearchParams(new URL(url).search);
+    let year_released = searchParams.get('year_released')
+    if (year_released) {
+        label.innerText = `Year Released : ${year_released}`
+    } else {
+        label.innerText = 'Year Released :'
+    }
+
+</script>
+{% endblock %}
