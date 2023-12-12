@@ -1,12 +1,21 @@
-from django.shortcuts import render, HttpResponse
-from django.core.handlers.wsgi import WSGIRequest
+from django.shortcuts import render
+from django.http import HttpRequest, HttpResponse
+from django.views import TemplateView
+from typing import Any
 
-TEMPLATE_URL = 'App/home/home.html'
-TITLE = 'Home'
+class HoHomeViewme(TemplateView):
+    template_name = 'App/home/home.html'
+    def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
 
-def home(request:WSGIRequest) -> None:
+        return super().dispatch(request, *args, **kwargs)
 
-    context = {
-        'title': TITLE
-    }
-    return render(request, TEMPLATE_URL, context=context)
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'title': self.title,
+        })
+        return context
+    
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        return super().get(request, *args, **kwargs)
+
