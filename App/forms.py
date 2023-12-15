@@ -9,6 +9,7 @@ from decimal import Decimal
 from django.db.models import Min, Max
 from django.shortcuts import redirect
 from utils import get_year_released_limit
+from django.utils.html import format_html
 
 class chartMetricSelect(forms.Form):
     choices = (
@@ -83,14 +84,26 @@ class SearchItem(forms.Form):
     )
     
 
+class DivWrapper(forms.TextInput):
+    def render(self, name, value, attrs=None, renderer=None):
+        input = super().render(name, value, attrs)
+        html = f'''
+            <div class="checkbox-wrapper">
+                <label>Clear</label> 
+                {input}
+            </div>
+        '''
+        return html
+
+
 class ClearableForm(forms.Form):
     clear = forms.BooleanField(
-        label='Clear', 
         required=False, 
-        widget=forms.CheckboxInput(
+        label='',
+        widget=DivWrapper(
             attrs={
+                'type': 'button',
                 'onclick': 'submit()',
-                'label': 'Clear!',
                 'class': 'clear-button',
             }
         )
