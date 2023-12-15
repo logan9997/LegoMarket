@@ -91,7 +91,7 @@ class ClearableForm(forms.Form):
             attrs={
                 'onclick': 'submit()',
                 'label': 'Clear!',
-                'class': 'clear-button'
+                'class': 'clear-button',
             }
         )
     )
@@ -104,6 +104,7 @@ class Order(ClearableForm):
     )
     order = forms.ChoiceField(
         widget=forms.Select(attrs={'oninput': 'submit()'}),
+        label='',
         choices=(
             ('item_id', 'Item ID Asc'),
             ('-item_id', 'Item ID Desc'),
@@ -119,7 +120,6 @@ class Order(ClearableForm):
             ('qty_new', 'Lowest Qty (New)'),
             ('-qty_used', 'Highest Qty (Used)'),
             ('qty_used', 'Lowest Qty (Used)'),
-            
         ), 
     )
 
