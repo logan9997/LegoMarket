@@ -8,6 +8,7 @@
 #forms {
     width: 20vw;
     padding-right: 2rem;
+    border-right: 0.1rem black solid;
 }
 
 #forms h5 {
@@ -66,7 +67,6 @@ form {
     margin: auto;
     margin-top: 0;
     background-color: whitesmoke;
-    border-left: 0.1rem black solid;
 }
 
 #items {
