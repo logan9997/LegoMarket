@@ -1,5 +1,6 @@
 {% extends 'App/base.html' %}
 {% load static %}
+{% load tags %}
 
 {% block head %}
 <link rel="stylesheet" href="{% static 'App/search.css' %}">
@@ -14,16 +15,28 @@
 </form>
 
 <form id="year-released-form" action="{% url 'search_form_hander' %}" method="get">
+    <h5>Year Released</h5>
     {{forms.year_released}}
 </form>
 
 <form id="item-type-form" action="{% url 'search_form_hander' %}" method="get">
+    <h5>Item Type</h5>
     {{forms.item_type}}
 </form>
 
 <form id="metric-limits-form" action="{% url 'search_form_hander' %}" method="get">
-    {{forms.metric_limits.as_ul}}
-    <button type="submit">Go</button>
+    <h5>Prices & Quantity</h5>
+    <ul>
+    {% for field in forms.metric_limits %}
+        {% if not forloop.last %}
+        <li>{{ field.label_tag }} {{ field }}</li>
+        {% endif %}
+    {% endfor %}
+    </ul>
+    <div id="metric-limit-buttons">
+        <button type="submit">Go</button>
+        {{forms.metric_limits.clear}}
+    </div>
 </form>
 
 </section>
