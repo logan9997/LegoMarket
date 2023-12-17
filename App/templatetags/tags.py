@@ -1,4 +1,5 @@
 from django import template
+from django.http import HttpRequest
 from ..models import Item, User
 from ..forms import SearchItem
 from utils import (
@@ -18,6 +19,14 @@ def get_username(context):
         return 'Guest'
     return user.username
 
+@register.simple_tag(takes_context=True)
+def get_qstring(context):
+    request:HttpRequest = context['request']
+    params = request.GET
+    params._mutable = True
+    if 'pg' in params:
+        params.pop('pg')
+    return params.urlencode()
 
 @register.simple_tag(takes_context=True)
 def get_item_search_form(context):
