@@ -1,5 +1,5 @@
 from django import template
-from ..models import Item
+from ..models import Item, User
 from ..forms import SearchItem
 from utils import (
     item_type_convert as _item_type_convert, 
@@ -8,9 +8,22 @@ from utils import (
 
 register = template.Library()
 
-@register.simple_tag
-def get_item_search_form():
-    return SearchItem()
+@register.simple_tag(takes_context=True)
+def get_username(context):
+    request = context['request']
+    user_id = request.session.get('user_id', 1)
+    try:
+        user = User.objects.get(user_id=user_id)
+    except:
+        return 'Guest'
+    return user.username
+
+
+@register.simple_tag(takes_context=True)
+def get_item_search_form(context):
+    request = context['request']
+    return SearchItem(request)
+
 
 @register.simple_tag
 def get_item_names():
@@ -62,3 +75,9 @@ def insert(iterable, char_and_index:str):
 @register.filter
 def add(num1, num2) -> int:
     return num1 + num2
+
+
+@register.filter
+def skip_index(iterable, index:int):
+    print(iterable, index)
+    return iterable[index:]
