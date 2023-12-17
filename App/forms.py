@@ -72,6 +72,12 @@ class SignUp(forms.Form):
     
 
 class SearchItem(forms.Form):
+
+    def __init__(self, request: HttpRequest, *args, **kwargs):
+        super(SearchItem, self).__init__(*args, **kwargs)
+        self.request = request
+        self.fields['q'].initial = self.request.GET.get('q', '')
+
     q = forms.CharField(
         label='',
         error_messages={'required': ''},
@@ -84,25 +90,34 @@ class SearchItem(forms.Form):
     )
     
 
-class DivWrapper(forms.TextInput):
+class DivWrapper(forms.CheckboxInput):
     def render(self, name, value, attrs=None, renderer=None):
         input = super().render(name, value, attrs)
         html = f'''
             <div class="checkbox-wrapper">
-                <label>Clear</label> 
                 {input}
+                <label>Clear</label>
             </div>
         '''
         return html
 
 
 class ClearableForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super(ClearableForm, self).__init__(*args, **kwargs)
+        self.set_clear_index()
+
+    def set_clear_index(self) -> None:
+        fields = list(self.fields.items())
+        clear_button = fields.pop(0)
+        fields.append(clear_button)
+        self.fields = dict(fields)
+
     clear = forms.BooleanField(
-        required=False, 
+        required=False,
         label='',
         widget=DivWrapper(
             attrs={
-                'type': 'button',
                 'onclick': 'submit()',
                 'class': 'clear-button',
             }
@@ -110,14 +125,14 @@ class ClearableForm(forms.Form):
     )
 
 
-class Order(ClearableForm):
+class Order(forms.Form):
     form_name = forms.CharField(
         widget=forms.HiddenInput(attrs={'value': 'order'}), 
         required=False
     )
     order = forms.ChoiceField(
         widget=forms.Select(attrs={'oninput': 'submit()'}),
-        label='',
+        label='Sort By:',
         choices=(
             ('item_id', 'Item ID Asc'),
             ('-item_id', 'Item ID Desc'),
@@ -139,6 +154,7 @@ class Order(ClearableForm):
     def set_initial(request):
         return {'order': request.GET.get('order')}
 
+
 class YearReleased(ClearableForm):
     form_name = forms.CharField(
         widget=forms.HiddenInput(attrs={'value': 'year_released'}), 
@@ -146,6 +162,7 @@ class YearReleased(ClearableForm):
     )
 
     year_released = forms.IntegerField(
+        label='',
         widget=forms.TextInput(
             attrs={
                 'type': 'range',
@@ -168,7 +185,8 @@ class ItemType(forms.Form):
 
     item_type = forms.ChoiceField(
         choices=(('M', 'Minifigure'), ('S', 'Set'), ('All', 'All')),
-        widget=forms.RadioSelect(attrs={'onclick': 'submit()'})
+        widget=forms.RadioSelect(attrs={'onclick': 'submit()'}),
+        label=''
     )
 
     def set_initial(request):
@@ -176,20 +194,21 @@ class ItemType(forms.Form):
 
 
 class MetricLimits(ClearableForm):
-
     form_name = forms.CharField(
         widget=forms.HiddenInput(attrs={'value': 'metric_limits'}), 
-        required=False
+        required=False,
+        label=''
     )
-    min_price_new = forms.DecimalField(min_value=0, required=False, initial=0, label='Min Price (New)')
-    max_price_new = forms.DecimalField(min_value=0, required=False, initial=0, label='Max Price (New)')
-    min_price_used = forms.DecimalField(min_value=0, required=False, initial=0, label='Min Price (Used)')
-    max_price_used = forms.DecimalField(min_value=0, required=False, initial=0, label='Max Price (Used)')
-    min_qty_new = forms.IntegerField(min_value=0, required=False, initial=0, label='Min Qty (New)')
-    max_qty_new = forms.IntegerField(min_value=0, required=False, initial=0, label='Max Qty (New)')
-    min_qty_used = forms.IntegerField(min_value=0, required=False, initial=0, label='Min Qty (Used)')
-    max_qty_used = forms.IntegerField(min_value=0, required=False, initial=0, label='Max Qty (Used)')
 
+    kwargs = {'min_value':0, 'required':False, 'initial':0}
+    min_price_new = forms.DecimalField(**kwargs, label='Min Price (New)')
+    max_price_new = forms.DecimalField(**kwargs, label='Max Price (New)')
+    min_price_used = forms.DecimalField(**kwargs, label='Min Price (Used)')
+    max_price_used = forms.DecimalField(**kwargs, label='Max Price (Used)')
+    min_qty_new = forms.IntegerField(**kwargs, label='Min Qty (New)')
+    max_qty_new = forms.IntegerField(**kwargs, label='Max Qty (New)')
+    min_qty_used = forms.IntegerField(**kwargs, label='Min Qty (Used)')
+    max_qty_used = forms.IntegerField(**kwargs, label='Max Qty (Used)')
 
     def set_initial(request):
         initial = {
