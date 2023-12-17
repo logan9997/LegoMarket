@@ -16,6 +16,7 @@
 
 <form id="year-released-form" action="{% url 'search_form_hander' %}" method="get">
     <h5>Year Released</h5>
+    <span id="selected-year"></span>
     {{forms.year_released}}
 </form>
 
@@ -43,33 +44,50 @@
 
 <section id="items-section">
     <div id="items">
+        {% if items|length != 0 %}
         {% for item in items %}
         <a class="item-link" href="{% url 'item' item.item_id %}">
             <div class="item">
                 <span>{{item.item_id}}</span>
                 <img src="{% static item.image_path %}" alt="??">
                 <span class="item-name">{{item.item_name}}</span>
-                <ul class="item-metrics">
-                    <li>£(N) {{item.price_new}}</li>
-                    <li>£(U) {{item.price_used}}</li>
-                    <li>Q(N) {{item.qty_new}}</li>
-                    <li>Q(U) {{item.qty_used}}</li>
-                </ul>
+                <table>
+                    <tr>
+                        <th>£ (N)</th>
+                        <th>£ (U)</th>
+                        <th>QTY (N)</th>
+                        <th>QTY (U)</th>
+                    </tr>
+                    <tr>
+                        <td>{{item.price_new}}</td>
+                        <td>{{item.price_used}}</td>
+                        <td>{{item.qty_new}}</td>
+                        <td>{{item.qty_new}}</td>
+                    </tr>
+                </table>
             </div>
         </a>
         {% endfor %}
+    
+        {% else %}
+
+        <span>No Items Matching Search Inputs</span>
+        {% endif %}
+
     </div>
 
+
     {% if last_page > 1%}
+    {% get_pages_qstring as qstring %}
     <div id="pages">
         {% if current_page != 1 %}
-        <a href="{% url 'search' %}?q={{query}}&pg=1"><<</a>
-        <a href="{% url 'search' %}?q={{query}}&pg={{current_page|add:-1}}"><</a>
+        <a href="{% url 'search' %}?{{qstring}}&pg=1"><<</a>
+        <a href="{% url 'search' %}?{{qstring}}&pg={{current_page|add:-1}}"><</a>
         {% endif %}
 
         {% if current_page != last_page%}
-        <a href="{% url 'search' %}?q={{query}}&pg={{current_page|add:1}}">></a>
-        <a href="{% url 'search' %}?q={{query}}&pg={{last_page}}">>></a>
+        <a href="{% url 'search' %}?{{qstring}}&pg={{current_page|add:1}}">></a>
+        <a href="{% url 'search' %}?{{qstring}}&pg={{last_page}}">>></a>
         {% endif %}
     </div>
     {% endif %}
@@ -82,18 +100,18 @@
 <script>
     var year_released_form = document.getElementById('year-released-form')
     let input = year_released_form.querySelector('input[type=range]')
-    let label = year_released_form.querySelector('label[for="id_year_released"]')
+    let label = document.getElementById('selected-year')
     input.addEventListener('input', () => {
-        label.innerText = `Year Released : ${input.value}`
+        label.innerText = input.value
     })
 
     let url = window.location.href;
     let searchParams = new URLSearchParams(new URL(url).search);
     let year_released = searchParams.get('year_released')
     if (year_released) {
-        label.innerText = `Year Released : ${year_released}`
+        label.innerText = year_released
     } else {
-        label.innerText = 'Year Released :'
+        label.innerText = ''
     }
 
 </script>
