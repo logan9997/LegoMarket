@@ -7,38 +7,40 @@
 
 #forms {
     width: 20vw;
+    padding-right: 2rem;
+}
+
+#forms h5 {
+    text-align: center;
+}
+
+form {
+    border-bottom: 0.075rem rgb(231, 213, 213) solid;
+    padding: 0.5rem 0 0.5rem;
 }
 
 .checkbox-wrapper {
-    background-color: gray;
-    width: 10rem;
-    position: relative;
+    display: flex;
+    flex-direction: row;
+    margin-left: 0.2rem;
 }
 
 .checkbox-wrapper input {
-    width: 10rem;
-    position: absolute;
-    background-color: transparent;
-    z-index: 1;
+    margin-right: 0.5rem;
+    transform: scale(1.5);
 }
 
 .checkbox-wrapper label {
-    width: 10rem;
-    position: absolute;
-    text-align: center;
-    background-color: white;
-    padding-bottom: 0.3rem;
-}
-
-select {
-    margin-top: 4rem;
+    margin-bottom: 0;
 }
 
 #order-form {
-    background-color: red;
-    height: 10rem;
+    height: 4rem;
 }
 
+#metric-limits-form ul {
+    padding: 0;
+}
 
 #metric-limits-form li {
     display: flex;
@@ -50,15 +52,21 @@ select {
     min-width: 60%;
 }
 
-
 #metric-limits-form li input {
     width: 3rem;
+}
+
+#metric-limit-buttons {
+    display: flex;
+    justify-content: space-evenly;
 }
 
 #items-section {
     width: 70vw;
     margin: auto;
+    margin-top: 0;
     background-color: whitesmoke;
+    border-left: 0.1rem black solid;
 }
 
 #items {
@@ -81,6 +89,10 @@ select {
     color: black;
 }
 
+.item:hover {
+    background-color: whitesmoke;
+}
+
 .item {
     display: flex;
     flex-direction: column;
@@ -96,7 +108,16 @@ select {
 }
 
 .item img {
-    height: 100%;
+    height: 6rem;
+}
+
+.item-name {
+    display: block;
+    max-height: 3em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3em;
+    height: 4rem;
 }
 
 .item-metrics {
