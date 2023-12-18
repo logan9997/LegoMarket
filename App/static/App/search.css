@@ -8,7 +8,8 @@
 #forms {
     width: 20vw;
     padding-right: 2rem;
-    border-right: 0.1rem black solid;
+    border-right: 0.075rem rgb(231, 213, 213) solid;
+    margin: 1rem 0 1rem;
 }
 
 #forms h5 {
@@ -36,7 +37,11 @@ form {
 }
 
 #order-form {
-    height: 4rem;
+    min-height: 4rem;
+}
+
+#order-form select {
+    width: 100%;
 }
 
 #year-released-form {
