@@ -201,10 +201,10 @@ class MetricLimits(ClearableForm):
     )
 
     kwargs = {'min_value':0, 'required':False, 'initial':0}
-    min_price_new = forms.DecimalField(**kwargs, label='Min Price (New)')
-    max_price_new = forms.DecimalField(**kwargs, label='Max Price (New)')
-    min_price_used = forms.DecimalField(**kwargs, label='Min Price (Used)')
-    max_price_used = forms.DecimalField(**kwargs, label='Max Price (Used)')
+    min_price_new = forms.DecimalField(**kwargs, label='Min Price (New) (£)')
+    max_price_new = forms.DecimalField(**kwargs, label='Max Price (New) (£)')
+    min_price_used = forms.DecimalField(**kwargs, label='Min Price (Used) (£)')
+    max_price_used = forms.DecimalField(**kwargs, label='Max Price (Used) (£)')
     min_qty_new = forms.IntegerField(**kwargs, label='Min Qty (New)')
     max_qty_new = forms.IntegerField(**kwargs, label='Max Qty (New)')
     min_qty_used = forms.IntegerField(**kwargs, label='Min Qty (Used)')
