@@ -39,6 +39,22 @@ form {
     height: 4rem;
 }
 
+#year-released-form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+#year-released-form h5 {
+    margin-bottom: 0.1rem;
+}
+
+#selected-year {
+    height: 1rem;
+    text-align: center;
+    margin: 0 0 0.5rem;
+}
+
 #metric-limits-form ul {
     padding: 0;
 }
@@ -66,7 +82,6 @@ form {
     width: 70vw;
     margin: auto;
     margin-top: 0;
-    background-color: whitesmoke;
 }
 
 #items {
@@ -74,11 +89,12 @@ form {
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: space-evenly;
+    margin-top: 1rem;
 }
 
 .item-link {
     width: 30%;
-    height: 12rem;
+    height: 14rem;
     margin-bottom: 3%;
     color: black;
     text-align: center;
@@ -100,6 +116,7 @@ form {
     background-color: white;
     border-radius: 1rem;
     box-shadow: 0.1rem 0.1rem 0.1rem 0.1rem black;
+    overflow: hidden;
 }
 
 .item * {
@@ -113,16 +130,29 @@ form {
 
 .item-name {
     display: block;
-    max-height: 3em;
     overflow: hidden;
     text-overflow: ellipsis;
     line-height: 1.3em;
-    height: 4rem;
+    height: 3rem;
 }
 
-.item-metrics {
+.item table {
+    width: 100%;
+    border-top: 0.1rem black solid;
+}
+
+.item table tr {
     display: flex;
-    justify-content: space-around;
+}
+
+.item table th, .item table td {
+    width: 25%;
+    margin: 0;
+    border-right: 0.075rem rgb(231, 213, 213) solid
+}
+
+.item table th:last-child, .item table td:last-child {
+    border-right: unset
 }
 
 .item-metrics li {
