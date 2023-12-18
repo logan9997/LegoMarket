@@ -20,7 +20,7 @@ def get_username(context):
     return user.username
 
 @register.simple_tag(takes_context=True)
-def get_qstring(context):
+def get_pages_qstring(context):
     request:HttpRequest = context['request']
     params = request.GET
     params._mutable = True
