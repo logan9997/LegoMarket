@@ -18,6 +18,7 @@ class ItemView(TemplateView):
         self.title = f'Item/{self.item_id}'
         self.selected_chart_metric = self.get_selected_chart_metric()
         self.request = request
+        self.update_recently_viewed_items()
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
@@ -80,7 +81,7 @@ class ItemView(TemplateView):
             return 100
         latest = prices_objects.latest('date')
 
-        percentage_change = (latest - earliest) / latest * 100
+        percentage_change = (earliest - latest) / earliest * -100
         return round(percentage_change, 2)
 
     def get_similar_items(self):
@@ -107,3 +108,16 @@ class ItemView(TemplateView):
                 return similar_items
             
             threshold -= threshold_decrement
+
+    def update_recently_viewed_items(self):
+        max_similar_items = 8
+        item_ids:list[str] = self.request.session.get('recently_viewed', [])
+        
+        if self.item_id not in item_ids:
+            item_ids.insert(0, self.item_id) 
+
+        if len(item_ids) > max_similar_items:
+            item_ids.pop(-1)
+
+        self.request.session['recently_viewed'] = item_ids
+        self.request.session.modified = True
