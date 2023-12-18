@@ -1,8 +1,7 @@
-from django import http
 from django.http import HttpRequest, HttpResponse, QueryDict
 from django.shortcuts import HttpResponse, redirect
 from django.views.generic import TemplateView, View
-from ..models import Item, Price
+from ..models import Price
 from ..forms import YearReleased, ItemType, MetricLimits, Order
 from config import ITEMS_PER_PAGE
 from typing import Any
@@ -23,15 +22,10 @@ class FormHandler(View):
         }
 
     def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
-        self.form = self.get_form()
-        current_params = self.get_current_params()
-        new_params = self.get_new_params()
-        params = self.join_params(current_params, new_params)
-        params = self.validate_params(params)
-        qstring = params.urlencode()
+        qstring = self.get_qstring()
         host = self.request.get_host()
         return redirect(f'http://{host}/search/?{qstring}')
-    
+        
     def get_form(self) -> forms.Form:
         form_name = self.request.GET.get('form_name')
         form = self.forms.get(form_name)
@@ -78,6 +72,15 @@ class FormHandler(View):
         for k, v in new.items():
             current[k] = v
         return current
+    
+    def get_qstring(self):
+        self.form = self.get_form()
+        current_params = self.get_current_params()
+        new_params = self.get_new_params()
+        params = self.join_params(current_params, new_params)
+        params = self.validate_params(params)
+        qstring = params.urlencode()
+        return qstring
 
     
 class Filters:
@@ -142,13 +145,17 @@ class SearchView(TemplateView):
         self.items = self.get_items(self.query, filters=self.filters, orders=self.order)
         self.last_page = math.ceil(len(self.items) / ITEMS_PER_PAGE)
         self.current_page = self.validate_current_page(get_current_page(request))
+        self.shown_items = self.items[
+            (self.current_page - 1) * ITEMS_PER_PAGE : self.current_page * ITEMS_PER_PAGE
+        ]
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         context.update({
             'title': self.title,
-            'items': self.items[(self.current_page - 1) * ITEMS_PER_PAGE : self.current_page * ITEMS_PER_PAGE],
+            'shown_items': self.shown_items,
+            'items_count': len(self.items),
             'current_page': self.current_page,
             'query': self.query,
             'last_page': self.last_page,
