@@ -69,7 +69,7 @@ class UpdateMetric {
 		if (hovered_metric == 0) {
 			return '(+100%)'
 		}
-		let percentage_difference = (hovered_metric - this.data[0]) / hovered_metric * 100
+		let percentage_difference = (this.data[0] - hovered_metric) / this.data[0] * -100
 		percentage_difference = Math.round(percentage_difference * 100) / 100
 		percentage_difference =  this.add_sign(percentage_difference)
 		return `(${this.zero_pad(percentage_difference)}%)`
