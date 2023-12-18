@@ -80,7 +80,7 @@ class SearchItem(forms.Form):
 
     q = forms.CharField(
         label='',
-        error_messages={'required': ''},
+        required=False,
         max_length=ModelsConfig.Length.ITEM_NAME,
         widget= forms.TextInput(attrs={
             'oninput': 'search_suggestions.show_search_suggestions()',
