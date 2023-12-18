@@ -1,5 +1,7 @@
 from django import template
 from django.http import HttpRequest
+import locale
+from decimal import Decimal
 from ..models import Item, User
 from ..forms import SearchItem
 from utils import (
@@ -90,3 +92,17 @@ def add(num1, num2) -> int:
 def skip_index(iterable, index:int):
     print(iterable, index)
     return iterable[index:]
+
+
+@register.filter
+def format_number(number):
+    locale.setlocale(locale.LC_ALL, '')
+    if type(number) == Decimal:
+        formatted_number = locale.format_string(
+            "%.*f", 
+            (locale.localeconv()['frac_digits'], number), 
+            grouping=True
+        )
+    else:
+        formatted_number = locale.format("%d", number, grouping=True)
+    return formatted_number
