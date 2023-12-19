@@ -1,15 +1,29 @@
-#welcome-panel {
-    width: 60vw;
-    
+#block-content {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 2rem;
+    width: 90vw;
+    margin: 0 auto 5rem;
 }
 
 #trending-items {
-    width: 15rem;
+    width: 18%;
     text-align: center;
+    box-shadow: 0.1rem 0.1rem 0.1rem black;
+    height: 80vh;
+}
+
+#trending-items h3 {
+    border-bottom: 0.075rem gray solid;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+    width: 85%;
+    margin: auto;
+    height: 3rem;
 }
 
 #slider {
-    height: 32rem;
+    height: calc(100% - 3rem);
     position: relative;
     overflow: hidden;
 }
@@ -91,3 +105,32 @@
 #slider #slide-track {
     height: calc(13rem * 20);
 }
+
+#welcome-panel {
+    width: 60%;
+    text-align: center;
+}
+
+#welcome-heading {
+    margin-bottom: 2rem;
+}
+
+#features {
+    display: flex;
+}
+
+#features div {
+    width: 33%;
+}
+
+#site-demonstration {
+    background-color: red;
+    position: relative;
+}
+
+#chart-snippet {
+    width: 100%;
+    display: block;
+
+}
+
