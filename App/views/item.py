@@ -44,12 +44,19 @@ class ItemView(TemplateView):
         return context
     
     def item_id_valid(self) -> bool:
+        '''
+        Validates the item_id passed inside the URL, checks if it exists inside 
+        database
+        '''
         item_ids = Item.objects.all().values_list('item_id', flat=True)
         if self.item_id in item_ids:
             return True
         return False
 
     def get_selected_chart_metric(self) -> str:
+        '''
+        Returns and validates the selected chart_metric
+        '''
         default_value = 'price_new'
         selected_metric =  self.request.GET.get('chart_metric', default_value)
         if selected_metric not in METRICS:
@@ -59,19 +66,29 @@ class ItemView(TemplateView):
     def get_item_info(self) -> Item:
         return Item.objects.get(item_id=self.item_id)
         
-    def get_chart_data(self, metric:str):
+    def get_chart_data(self, metric:str) -> list:
+        '''
+        Returns a list of metrics for selected item to be plotted inside chart
+        '''
         metrics = Price.objects.filter(
             item_id=self.item_id
         ).values_list(metric, flat=True).order_by('date')
         return list(metrics)
     
     def get_current_metric(self, metric:str) -> Decimal | int:
+        '''
+        Returns the selected metric for todays date, for selected item
+        '''
         metric = Price.objects.filter(
             item_id=self.item_id
         ).values_list(metric, flat=True).latest('date')
         return metric
     
     def get_metric_percentage_change(self, metric:str) -> float:
+        '''
+        Calculates the percentage change between the earliest and latest record
+        of the selected item's selected chart metric
+        '''
         prices_objects = Price.objects.filter(
             item_id=self.item_id
         ).values_list(metric, flat=True)
@@ -84,7 +101,10 @@ class ItemView(TemplateView):
         percentage_change = (earliest - latest) / earliest * -100
         return round(percentage_change, 2)
 
-    def get_similar_items(self):
+    def get_similar_items(self) -> list:
+        '''
+        Returns a list of items with a similar item name to the selected item's name
+        '''
         threshold = 90
         threshold_stop_limit = 60
         similar_items_limit = 6
@@ -109,7 +129,10 @@ class ItemView(TemplateView):
             
             threshold -= threshold_decrement
 
-    def update_recently_viewed_items(self):
+    def update_recently_viewed_items(self) -> None:
+        '''
+        Inserts item_id into request.session.recently_viewed: list
+        '''
         max_similar_items = 8
         item_ids:list[str] = self.request.session.get('recently_viewed', [])
         

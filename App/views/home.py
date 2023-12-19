@@ -3,10 +3,11 @@ from django.views.generic import TemplateView
 from typing import Any
 from ..models import Item, Price
 from django.db.models import Subquery, OuterRef, F, DecimalField, Func, Value, ExpressionWrapper, Max
+from django.db.models.manager import BaseManager
 from utils import timer
 from config import DATE_FORMAT
 from datetime import datetime, timedelta
-
+from decimal import Decimal
 
 class HomeView(TemplateView):
     template_name = 'App/home/home.html'
@@ -25,15 +26,20 @@ class HomeView(TemplateView):
         })
         return context
     
-    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
-        return super().get(request, *args, **kwargs)
-
-    def get_recently_viewed_items(self):
+    def get_recently_viewed_items(self) -> BaseManager[Item]:
+        '''
+        Returns items which the user has recently visited their item profile 
+        page. Recently viewed item_ids stored inside request.session
+        '''
         item_ids = self.request.session.get('recently_viewed', [])
         items = Item.objects.filter(item_id__in=item_ids)
         return items
     
-    def get_trending_items(self):
+    def get_trending_items(self) -> BaseManager[Price]:
+        '''
+        Returns items with the biggest percentage change in price in the last 
+        7 days
+        '''
         # get the max 'date' for each item_id
         latest_dates = Price.objects.filter(
             item_id=OuterRef('item_id')
