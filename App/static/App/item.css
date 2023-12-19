@@ -93,7 +93,6 @@ body {
 #chart-container canvas {
     height: 80% !important;
     width: 100% !important;
-    /* padding-bottom: 3rem; */
 }
 
 #id_chart_metric {
@@ -140,6 +139,7 @@ body {
     margin-left: 5vw;
     width: 90vw;
     background-color: white;
+    margin-bottom: 5rem;
 }
 
 #similar-items-section h3 {
