@@ -49,6 +49,11 @@
                 {{search_form}}
             </form>
         </div>
+
+        <div>
+            {% get_username as username %}
+            <span>Logged in as: {{username}}</span>
+        </div>
     </nav>
     <div id="search-suggestions-container"></div>
 
