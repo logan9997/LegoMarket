@@ -4,6 +4,9 @@ from typing import Any
 from ..models import Item, Price
 from django.db.models import Subquery, OuterRef, F, DecimalField, Func, Value, ExpressionWrapper, Max
 from utils import timer
+from config import DATE_FORMAT
+from datetime import datetime, timedelta
+
 
 class HomeView(TemplateView):
     template_name = 'App/home/home.html'
@@ -12,14 +15,13 @@ class HomeView(TemplateView):
         self.request = request
         return super().dispatch(request, *args, **kwargs)
 
-    @timer
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        self.get_trending_items()
         context.update({
             'title': self.title,
             'request':self.request,
-            'recently_viewed': self.get_recently_viewed_items()
+            'recently_viewed': self.get_recently_viewed_items(),
+            'trending_items': self.get_trending_items()
         })
         return context
     
@@ -56,7 +58,12 @@ class HomeView(TemplateView):
             output_field=DecimalField()
         )
 
-        result = Price.objects.filter(date='2023-11-10', price_new__gt=0).values(
+        last_weeks_date = datetime.now() - timedelta(days=7)
+        last_weeks_date = last_weeks_date.strftime(DATE_FORMAT)
+
+        result = Price.objects.filter(
+            date=last_weeks_date, price_new__gt=0
+        ).values(
             'item_id',
             item_name=F('item__item_name'),
             image_path=F('item__image_path'),
@@ -70,5 +77,7 @@ class HomeView(TemplateView):
                 ), 
                 output_field=DecimalField()
             )
-        ).order_by(order_by_expression.desc())[:10]
+        ).order_by(
+            order_by_expression.desc()
+        )[:10]
         return result
