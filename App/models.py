@@ -1,5 +1,6 @@
 from django.db import models
 from config import ModelsConfig
+from django.db.models import F, ExpressionWrapper, Case, When, Value
 
 class Item(models.Model):
     item_id = models.CharField(
@@ -26,7 +27,7 @@ class Price(models.Model):
         primary_key=True
     )
     item = models.ForeignKey(
-        Item, 
+        Item,
         on_delete=models.CASCADE
     )
     date = models.DateField()
@@ -54,4 +55,26 @@ class User(models.Model):
     )
     password = models.CharField(
         max_length=ModelsConfig.Length.PASSWORD
+    )
+
+
+class Portfolio(models.Model):
+    entry_id = models.AutoField(
+        primary_key=True
+    )
+    item = models.ForeignKey(
+        Item,
+        on_delete=models.CASCADE
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
+    bought_for = models.DecimalField(
+        max_digits=ModelsConfig.Decimal.MAX_DIGITS, 
+        decimal_places=ModelsConfig.Decimal.DECIMAL_PLACE
+    )
+    date_acquired = models.DateField()
+    notes = models.CharField(
+        max_length=ModelsConfig.Length.NOTES
     )
