@@ -22,6 +22,14 @@ def get_username(context):
     return user.username
 
 @register.simple_tag(takes_context=True)
+def logged_in(context: dict) -> bool:
+    request = context['request']
+    user_id = request.session.get('user_id', -1)
+    if user_id == -1:
+        return False
+    return True
+
+@register.simple_tag(takes_context=True)
 def get_pages_qstring(context):
     request:HttpRequest = context['request']
     params = request.GET
