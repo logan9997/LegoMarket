@@ -222,3 +222,16 @@ class MetricLimits(ClearableForm):
             'max_qty_used': request.GET.get('max_qty_used', 0),
         }
         return initial
+
+
+class AddToPortfolio(forms.Form):
+    bought_for = forms.DecimalField(
+        required=False
+    )
+    date_acquired = forms.DateField(
+        required=False
+    )
+    notes = forms.CharField(
+        max_length=ModelsConfig.Length.NOTES,
+        required=False
+    )
