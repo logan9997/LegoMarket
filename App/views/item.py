@@ -6,7 +6,7 @@ from typing import Any
 from decimal import Decimal
 from ..forms import chartMetricSelect
 from fuzzywuzzy import fuzz
-from config import METRICS
+from config import METRICS, MAX_RECENTLY_VIEWED_ITEMS
 
 class ItemView(TemplateView):
     template_name = 'App/item/item.html'
@@ -133,13 +133,14 @@ class ItemView(TemplateView):
         '''
         Inserts item_id into request.session.recently_viewed: list
         '''
-        max_similar_items = 8
         item_ids:list[str] = self.request.session.get('recently_viewed', [])
         
-        if self.item_id not in item_ids:
-            item_ids.insert(0, self.item_id) 
+        if self.item_id in item_ids:
+            item_ids.remove(self.item_id)
 
-        if len(item_ids) > max_similar_items:
+        item_ids.insert(0, self.item_id) 
+
+        if len(item_ids) > MAX_RECENTLY_VIEWED_ITEMS:
             item_ids.pop(-1)
 
         self.request.session['recently_viewed'] = item_ids
