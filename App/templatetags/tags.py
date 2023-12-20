@@ -6,7 +6,8 @@ from ..models import Item, User
 from ..forms import SearchItem
 from utils import (
     item_type_convert as _item_type_convert, 
-    metric_convert as _metric_convert
+    metric_convert as _metric_convert,
+    get_user_id
 )
 
 register = template.Library()
@@ -14,7 +15,7 @@ register = template.Library()
 @register.simple_tag(takes_context=True)
 def get_username(context):
     request = context['request']
-    user_id = request.session.get('user_id', 1)
+    user_id = get_user_id(request)
     try:
         user = User.objects.get(user_id=user_id)
     except:
@@ -24,7 +25,7 @@ def get_username(context):
 @register.simple_tag(takes_context=True)
 def logged_in(context: dict) -> bool:
     request = context['request']
-    user_id = request.session.get('user_id', -1)
+    user_id = get_user_id(request)
     if user_id == -1:
         return False
     return True
@@ -37,6 +38,7 @@ def get_pages_qstring(context):
     if 'pg' in params:
         params.pop('pg')
     return params.urlencode()
+
 
 @register.simple_tag(takes_context=True)
 def get_item_search_form(context):

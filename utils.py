@@ -2,6 +2,10 @@ from typing import Any
 import time
 from django.db.models import Min, Max
 from django.http import HttpRequest
+from config import NO_USER_LOGGED_IN_VALUE
+
+def get_user_id(request: HttpRequest):
+    return request.session.get('user_id', NO_USER_LOGGED_IN_VALUE)
 
 def item_type_convert(item_type:str) -> str:
     '''
