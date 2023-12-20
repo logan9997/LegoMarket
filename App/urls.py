@@ -9,6 +9,7 @@ urlpatterns = [
     path('search_form_hander/', search.FormHandler.as_view(), name='search_form_hander'),
     path('item/<str:item_id>/', item.ItemView.as_view(), name='item'),
     path('portfolio/', portfolio.PortfolioView.as_view(), name='portfolio'),
+    path('add_to_portfolio/<str:item_id>/', portfolio.add_to_portfolio, name='add_to_portfolio'),
     path('login/', login.LoginView.as_view(), name='login'),
     path('signup/', signup.SignUpView.as_view(), name='signup'),
 ]
