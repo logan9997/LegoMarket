@@ -1,0 +1,12 @@
+{% load static %}
+{% load tags %}
+
+<a class="trending-item-link" href="{% url 'item' item.item_id %}">
+    <span>{{item.item_id}}</span>
+    <img src="{% static item.image_path %}" alt="">
+    {% if item.price_change >= 0 %}
+    <span style="color: green;" class="price-change">({{item.price_change|add_sign}}%)</span>
+    {% else %}
+    <span style="color: red;" class="price-change">({{item.price_change|add_sign}}%)</span>
+    {% endif %}
+</a>
