@@ -32,7 +32,7 @@ class HomeView(TemplateView):
         page. Recently viewed item_ids stored inside request.session
         '''
         item_ids = self.request.session.get('recently_viewed', [])
-        items = Item.objects.filter(item_id__in=item_ids)
+        items = [Item.objects.filter(item_id=item_id)[0] for item_id in item_ids]
         return items
     
     def get_trending_items(self) -> BaseManager[Price]:
@@ -40,21 +40,9 @@ class HomeView(TemplateView):
         Returns items with the biggest percentage change in price in the last 
         7 days
         '''
-        # get the max 'date' for each item_id
-        latest_dates = Price.objects.filter(
-            item_id=OuterRef('item_id')
-        ).values(
-            'item_id'
-        ).annotate(
-            max_date=Max('date')
-        ).values('max_date')[:1]
-
-        # get 'price_new' for each item where 'date' = 'max_date' from latest_dates query
         latest_prices = Price.objects.filter(
-            date=Subquery(latest_dates), item_id=OuterRef('item_id')
-        ).values(
-            'price_new'
-        )[:1]
+            item_id=OuterRef('item_id')
+        ).order_by('-date').values('price_new')[:1]
 
         percentage_change = (F('price_new') - Subquery(latest_prices)) / F('price_new') * -100
 
