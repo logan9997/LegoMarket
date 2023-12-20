@@ -25,7 +25,7 @@ def get_username(context):
 @register.simple_tag(takes_context=True)
 def logged_in(context: dict) -> bool:
     request = context['request']
-    user_id = get_user_id(request)
+    user_id = get_user_id(request) 
     if user_id == -1:
         return False
     return True
