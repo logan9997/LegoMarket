@@ -4,11 +4,12 @@ from django.db.models import Min, Max
 from django.http import HttpRequest
 from config import NO_USER_LOGGED_IN_VALUE
 
+
 def get_user_id(request: HttpRequest):
     return request.session.get('user_id', NO_USER_LOGGED_IN_VALUE)
 
 
-def get_previous_url(request: HttpRequest, default_value=None) -> str | Any:
+def get_previous_url(request: HttpRequest, default_value='home') -> str | Any:
     return request.META.get('HTTP_REFERER', default_value)
 
 
@@ -80,8 +81,53 @@ def timer(func: Any) -> Any:
     return wrapper
 
 def get_year_released_limit(limit:Min | Max) -> int:
+    '''
+    Returns either the Min or Max year_released value from models.Item
+    '''
     from App.models import Item
-    year = Item.objects.filter(year_released__gt=0).aggregate(
+
+    year = Item.objects.filter(
+        year_released__gt=0
+    ).aggregate(
         year_released=limit('year_released')
-    ).get('year_released')
+    ).get(
+        'year_released'
+    )
     return int(year)
+
+
+def get_portfolio_item_inventory(item_id: str, user_id: int) -> list[dict[str, Any]]:
+    '''
+    Return a list of dicts containing;
+
+    dict['form'] = PortfolioItem form object, with initial values set from 
+    items retrived from database 
+
+    dict['entry_id'] = entry_id for each Portfolio object    
+    '''
+
+    from App.forms import PortfolioItem
+    from App.models import Portfolio
+
+    initial_values = Portfolio.objects.filter(
+        item_id=item_id, 
+        user_id=user_id
+    ).values(
+        'bought_for',
+        'date_acquired',
+        'notes',
+        'entry_id'
+    ).order_by(
+        '-entry_id'
+    )
+
+    forms = []
+    for values in initial_values:
+        entry_id = values.pop('entry_id')
+        data = {
+            'form': PortfolioItem(initial=values),
+            'entry_id': entry_id
+        }
+        forms.append(data)
+        
+    return forms
