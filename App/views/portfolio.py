@@ -22,7 +22,7 @@ def add_to_portfolio(request: HttpRequest, item_id: str):
             new_portfolio_item = Portfolio(
                 user_id=get_user_id(request),
                 item_id=item_id,
-                **data
+                **data,
             )
             new_portfolio_item.save()
 
