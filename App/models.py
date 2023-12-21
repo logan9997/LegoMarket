@@ -72,9 +72,14 @@ class Portfolio(models.Model):
     )
     bought_for = models.DecimalField(
         max_digits=ModelsConfig.Decimal.MAX_DIGITS, 
-        decimal_places=ModelsConfig.Decimal.DECIMAL_PLACE
+        decimal_places=ModelsConfig.Decimal.DECIMAL_PLACE,
+        null=True, blank=True
     )
-    date_acquired = models.DateField()
+    date_acquired = models.DateField(
+        null=True, blank=True
+    )
     notes = models.CharField(
-        max_length=ModelsConfig.Length.NOTES
+        max_length=ModelsConfig.Length.NOTES,
+        null=True, blank=True
+
     )
