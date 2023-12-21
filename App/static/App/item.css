@@ -5,11 +5,33 @@ body {
 #top-half {
     background-color: rgb(44, 44, 44);
     height: 10rem;
+    display: flex;
+    justify-content: space-between;
+}
+
+#top-half * {
+    margin: auto 0 auto;
 }
 
 #item-name {
     color: white;
     margin-left: 5vw;
+    width: fit-content;
+}
+
+#add-to-portfolio-button {
+    width: 8rem;
+    display: block;
+    margin-right: 5vw;
+    height: 2.4rem;
+    border-radius: 1rem;
+    background-color: white;
+    /* border: 0.1rem  solid; */
+}
+
+#add-to-portfolio-button:hover {
+    transform: scale(1.025);
+    background-color: whitesmoke;
 }
 
 #bottom-half {
@@ -27,6 +49,11 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: center;
+}
+
+#item-image-container img {
+    display: block;
+    margin: auto;
 }
 
 #item-image-container, #chart-container {
