@@ -7,6 +7,11 @@ from config import NO_USER_LOGGED_IN_VALUE
 def get_user_id(request: HttpRequest):
     return request.session.get('user_id', NO_USER_LOGGED_IN_VALUE)
 
+
+def get_previous_url(request: HttpRequest, default_value=None) -> str | Any:
+    return request.META.get('HTTP_REFERER', default_value)
+
+
 def item_type_convert(item_type:str) -> str:
     '''
     Converts item type to alternative format
