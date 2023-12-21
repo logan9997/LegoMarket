@@ -1,15 +1,10 @@
-from collections.abc import Mapping
-from typing import Any
 from django import forms
-from django.forms.utils import ErrorList
-from config import ModelsConfig, Input, METRICS
+from config import ModelsConfig, METRICS, DATE_FORMAT
 from .models import User
-from django.http import HttpRequest, QueryDict
-from decimal import Decimal
+from django.http import HttpRequest
 from django.db.models import Min, Max
-from django.shortcuts import redirect
 from utils import get_year_released_limit
-from django.utils.html import format_html
+
 
 class chartMetricSelect(forms.Form):
     choices = (
@@ -96,7 +91,7 @@ class DivWrapper(forms.CheckboxInput):
         html = f'''
             <div class="checkbox-wrapper">
                 {input}
-                <label>Clear</label>
+                <label>{name.capitalize()}</label>
             </div>
         '''
         return html
@@ -224,12 +219,19 @@ class MetricLimits(ClearableForm):
         return initial
 
 
-class AddToPortfolio(forms.Form):
+class PortfolioItem(forms.Form):
     bought_for = forms.DecimalField(
         required=False
     )
     date_acquired = forms.DateField(
-        required=False
+        required=False,
+        input_formats=[DATE_FORMAT],
+        widget=forms.DateInput(
+            attrs={
+                'pattern':'\d{4}-\d{2}-\d{2}',
+                'placeholder': 'YYYY-MM-DD  '
+            }
+        )
     )
     notes = forms.CharField(
         max_length=ModelsConfig.Length.NOTES,
