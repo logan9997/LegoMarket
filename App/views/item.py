@@ -1,18 +1,22 @@
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import HttpResponse, redirect
 from django.views.generic import TemplateView
-from ..models import Item, Price
+from ..models import Item, Price, Portfolio
 from typing import Any
 from decimal import Decimal
-from ..forms import chartMetricSelect
+from ..forms import chartMetricSelect, PortfolioItem
+from utils import get_user_id
 from fuzzywuzzy import fuzz
 from config import METRICS, MAX_RECENTLY_VIEWED_ITEMS
+from utils import get_portfolio_item_inventory
+
 
 class ItemView(TemplateView):
     template_name = 'App/item/item.html'
 
     def dispatch(self, request: HttpRequest, item_id:str, *args: Any, **kwargs: Any) -> HttpResponse:
         self.item_id = item_id
+        self.user_id = get_user_id(request)
         if not self.item_id_valid():
             return redirect('home')
         self.title = f'Item/{self.item_id}'
@@ -39,10 +43,14 @@ class ItemView(TemplateView):
             'qty_new': self.get_current_metric('qty_new'),
             'qty_used': self.get_current_metric('qty_used'),
             'similar_items': self.get_similar_items(),
-            'form':chartMetricSelect,
+            'portfolio_item_inventory': get_portfolio_item_inventory(self.item_id, self.user_id),
+            'forms': {
+                'chart_metric_select': chartMetricSelect,
+                'portfolio_item': PortfolioItem
+            },
         })
         return context
-    
+             
     def item_id_valid(self) -> bool:
         '''
         Validates the item_id passed inside the URL, checks if it exists inside 
