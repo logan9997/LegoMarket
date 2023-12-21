@@ -5,28 +5,43 @@ from ..models import Item, Price, Portfolio
 from ..forms import PortfolioItem
 from typing import Any
 from decimal import Decimal
-from utils import get_user_id, get_previous_url
+from utils import get_user_id, get_previous_url, get_portfolio_item_inventory
+
 
 def delete_portfolio_item(request: HttpRequest, entry_id: int):
-    if request.method == 'POST':
-        delete_item = Portfolio.objects.filter(entry_id=entry_id)
-        delete_item.delete()
     previous_url = get_previous_url(request)
-    return redirect(f'{previous_url}#openModal')
+
+    if request.method == 'POST':
+        delete_item = Portfolio.objects.get(entry_id=entry_id)
+
+        user_id = get_user_id(request)
+        if delete_item.user.user_id != user_id:
+            return redirect(previous_url)
+
+        delete_item.delete()
+
+    if previous_url != 'home':
+        previous_url += '#openModal'
+    return redirect(previous_url)
 
 def add_to_portfolio(request: HttpRequest, item_id: str):
+
+    user_id = get_user_id(request)
+    previous_url = get_previous_url(request)
+    if user_id == -1:
+        return redirect(previous_url)
+
     if request.method == 'POST':
         form = PortfolioItem(request.POST)
         if form.is_valid():
             data: dict = form.cleaned_data
             new_portfolio_item = Portfolio(
-                user_id=get_user_id(request),
+                user_id=user_id,
                 item_id=item_id,
                 **data,
             )
             new_portfolio_item.save()
 
-    previous_url = get_previous_url(request)
     return redirect(f'{previous_url}#openModal')
 
 
@@ -48,9 +63,4 @@ class PortfolioView(TemplateView):
         '''
         Return items from Portfolio model where item_id = self.item_id
         '''
-        print('a')
         items = Portfolio.objects.filter(user_id=self.user_id)
-        for item in items:
-            for k, v in item.items():
-                print(k, v)
-        return items
