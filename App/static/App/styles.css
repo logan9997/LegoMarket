@@ -9,7 +9,7 @@
     height: 24rem;
     position: absolute;
     left: calc(50% - 18rem);
-    overflow: scroll;
+    overflow-y: auto;
     z-index: 4;
     visibility: hidden;
 }
@@ -61,4 +61,87 @@ footer div {
 
 #links span {
     margin: 0 0.5rem 0;
+}
+
+.modalDialog {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 99999;
+    opacity: 0;
+    -webkit-transition: opacity 400ms ease-in;
+    -moz-transition: opacity 400ms ease-in;
+    transition: opacity 400ms ease-in;
+    pointer-events: none;
+}
+
+.modalDialog:target {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+#item-inventory {
+    width: 60vw;
+    position: relative;
+    margin: 10% auto;
+    padding: 1rem;
+    border-radius: 10px;
+    background-color: white;
+    max-height: 60vh;
+    min-height: 35vh;
+}
+
+#inventory-table-container {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+#item-inventory input{
+    border: unset;
+    border-bottom: 0.1rem black solid;
+    outline: none;
+}
+
+#inventory-table {
+    width: 90%;
+    margin: 1rem auto 0;
+    overflow: scroll;
+
+}
+
+#headings-row {
+    border-bottom: 0.075rem gray solid;
+    /* position: sticky;
+    top: ; */
+}
+
+#new-inventory-item-input-row button {
+    background-color: green;
+}
+
+.spacer-tr {
+    border-top: 0.1rem transparent solid ;
+    border-bottom: 0.5rem solid transparent;
+}
+
+#inventory-table button {
+    width: 3rem;
+}
+
+#inventory-table label {
+    text-align: center;
+
+}
+
+.delete-button {
+    background-color: red;
+}
+
+.inventory-item-count {
+    text-align: left;
+    width: 2rem;
+    float: left;
 }
