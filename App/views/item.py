@@ -8,7 +8,7 @@ from ..forms import chartMetricSelect, PortfolioItem
 from utils import get_user_id
 from fuzzywuzzy import fuzz
 from config import METRICS, MAX_RECENTLY_VIEWED_ITEMS
-from utils import get_portfolio_item_inventory
+from utils import get_portfolio_item_inventory, Chart
 
 
 class ItemView(TemplateView):
@@ -19,24 +19,25 @@ class ItemView(TemplateView):
         self.user_id = get_user_id(request)
         if not self.item_id_valid():
             return redirect('home')
+        self.chart = Chart(request, item_id)
         self.title = f'Item/{self.item_id}'
-        self.selected_chart_metric = self.get_selected_chart_metric()
+        self.selected_chart_metric = self.chart.get_selected_chart_metric()
         self.request = request
         self.update_recently_viewed_items()
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
-        chart_metrics = self.get_chart_data(self.selected_chart_metric)
+        chart_metrics = self.chart.get_chart_data(self.selected_chart_metric)
 
         context = super().get_context_data(**kwargs)
         context.update({
             'title': self.title,
             'item_info': self.get_item_info(),
-            'chart_metric':self.get_selected_chart_metric(),
+            'chart_metric':self.chart.get_selected_chart_metric(),
             'chart_metrics': chart_metrics,
-            'chart_dates': self.get_chart_data('date'),
+            'chart_dates': self.chart.get_chart_data('date'),
             'metric_difference':chart_metrics[-1] - chart_metrics[0],
-            'metric_percentage_difference':self.get_metric_percentage_change(self.selected_chart_metric),
+            'metric_percentage_difference':self.chart.get_metric_percentage_change(self.selected_chart_metric),
             'chart_id':f'chart-{self.item_id}',
             'price_new': self.get_current_metric('price_new'),
             'price_used': self.get_current_metric('price_used'),
@@ -61,28 +62,9 @@ class ItemView(TemplateView):
             return True
         return False
 
-    def get_selected_chart_metric(self) -> str:
-        '''
-        Returns and validates the selected chart_metric
-        '''
-        default_value = 'price_new'
-        selected_metric =  self.request.GET.get('chart_metric', default_value)
-        if selected_metric not in METRICS:
-            return default_value
-        return selected_metric
-    
     def get_item_info(self) -> Item:
         return Item.objects.get(item_id=self.item_id)
         
-    def get_chart_data(self, metric:str) -> list:
-        '''
-        Returns a list of metrics for selected item to be plotted inside chart
-        '''
-        metrics = Price.objects.filter(
-            item_id=self.item_id
-        ).values_list(metric, flat=True).order_by('date')
-        return list(metrics)
-    
     def get_current_metric(self, metric:str) -> Decimal | int:
         '''
         Returns the selected metric for todays date, for selected item
@@ -92,23 +74,6 @@ class ItemView(TemplateView):
         ).values_list(metric, flat=True).latest('date')
         return metric
     
-    def get_metric_percentage_change(self, metric:str) -> float:
-        '''
-        Calculates the percentage change between the earliest and latest record
-        of the selected item's selected chart metric
-        '''
-        prices_objects = Price.objects.filter(
-            item_id=self.item_id
-        ).values_list(metric, flat=True)
-
-        earliest = prices_objects.earliest('date') 
-        if earliest == 0:
-            return 100
-        latest = prices_objects.latest('date')
-
-        percentage_change = (earliest - latest) / earliest * -100
-        return round(percentage_change, 2)
-
     def get_similar_items(self) -> list:
         '''
         Returns a list of items with a similar item name to the selected item's name
