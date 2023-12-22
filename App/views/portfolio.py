@@ -6,6 +6,27 @@ from ..forms import PortfolioItem
 from typing import Any
 from decimal import Decimal
 from utils import get_user_id, get_previous_url, get_portfolio_item_inventory
+from django.db.models import Subquery, OuterRef, Count, F
+
+def update_portfolio_item(request: HttpRequest, entry_id: int):
+    previous_url = get_previous_url(request)
+    if request.method == 'POST':
+        form = PortfolioItem(request.POST)
+        print(form.is_valid())
+        if form.is_valid():
+            update_item = Portfolio.objects.get(entry_id=entry_id)
+            for k, v in form.cleaned_data.items():
+                print(k, v)
+                if v == None and getattr(update_item, k) != None:
+                    setattr(update_item, k, v)
+                if v != None:
+                    setattr(update_item, k, v)
+
+            update_item.save()
+
+    if previous_url != 'home':
+        previous_url += '#openModal'         
+    return redirect(previous_url)
 
 
 def delete_portfolio_item(request: HttpRequest, entry_id: int):
@@ -24,8 +45,8 @@ def delete_portfolio_item(request: HttpRequest, entry_id: int):
         previous_url += '#openModal'
     return redirect(previous_url)
 
-def add_to_portfolio(request: HttpRequest, item_id: str):
 
+def add_portfolio_item(request: HttpRequest, item_id: str):
     user_id = get_user_id(request)
     previous_url = get_previous_url(request)
     if user_id == -1:
@@ -63,4 +84,40 @@ class PortfolioView(TemplateView):
         '''
         Return items from Portfolio model where item_id = self.item_id
         '''
-        items = Portfolio.objects.filter(user_id=self.user_id)
+        items = (
+            Portfolio.objects.filter(
+                user_id=self.user_id
+            ).values(
+                'item_id',
+                image_path=F('item__image_path'),
+                item_name=F('item__item_name'),
+            ).annotate(
+                count=Subquery(
+                    Portfolio.objects.filter(
+                        user_id=OuterRef('user_id'),
+                        item_id=OuterRef('item_id')
+                    ).values(
+                        'item_id'
+                    ).annotate(
+                        count=Count('item_id')
+                    ).values(
+                        'count'
+                    )[:1]
+                )
+            ).distinct()
+        )
+        return items
+
+
+class PortfolioItemView(TemplateView):
+    template_name = 'App/portfolio/portfolio_item.html'
+    
+    def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        return super().dispatch(request, *args, **kwargs)
+    
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context.update({
+
+        })
+        return context
