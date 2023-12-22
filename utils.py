@@ -2,7 +2,51 @@ from typing import Any
 import time
 from django.db.models import Min, Max
 from django.http import HttpRequest
-from config import NO_USER_LOGGED_IN_VALUE
+from config import NO_USER_LOGGED_IN_VALUE, METRICS
+
+class Chart:
+
+    def __init__(self, request: HttpRequest, item_id: str) -> None:
+        from App.models import Price
+        self.price = Price
+        self.request = request
+        self.item_id = item_id
+    
+    def get_selected_chart_metric(self) -> str:
+        '''
+        Returns and validates the selected chart_metric
+        '''
+        default_value = 'price_new'
+        selected_metric =  self.request.GET.get('chart_metric', default_value)
+        if selected_metric not in METRICS:
+            return default_value
+        return selected_metric
+    
+    def get_chart_data(self, metric:str) -> list:
+        '''
+        Returns a list of metrics for selected item to be plotted inside chart
+        '''
+        metrics = self.Price.objects.filter(
+            item_id=self.item_id
+        ).values_list(metric, flat=True).order_by('date')
+        return list(metrics)
+    
+    def get_metric_percentage_change(self, metric:str) -> float:
+        '''
+        Calculates the percentage change between the earliest and latest record
+        of the selected item's selected chart metric
+        '''
+        prices_objects = self.Price.objects.filter(
+            item_id=self.item_id
+        ).values_list(metric, flat=True)
+
+        earliest = prices_objects.earliest('date') 
+        if earliest == 0:
+            return 100
+        latest = prices_objects.latest('date')
+
+        percentage_change = (earliest - latest) / earliest * -100
+        return round(percentage_change, 2)
 
 
 def get_user_id(request: HttpRequest):
