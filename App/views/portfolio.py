@@ -12,11 +12,9 @@ def update_portfolio_item(request: HttpRequest, entry_id: int):
     previous_url = get_previous_url(request)
     if request.method == 'POST':
         form = PortfolioItem(request.POST)
-        print(form.is_valid())
         if form.is_valid():
             update_item = Portfolio.objects.get(entry_id=entry_id)
             for k, v in form.cleaned_data.items():
-                print(k, v)
                 if v == None and getattr(update_item, k) != None:
                     setattr(update_item, k, v)
                 if v != None:
