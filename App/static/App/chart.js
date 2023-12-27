@@ -123,7 +123,7 @@ class CreateChart {
 	}
 
 	get_canvas() {
-		let chart_id = JSON.parse(document.getElementById('chart-id').textContent)
+		let chart_id = 'chart-canvas'
 		let chart = document.getElementById(chart_id);
 		return chart
 	}
