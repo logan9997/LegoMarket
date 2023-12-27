@@ -5,7 +5,7 @@ from ..models import Item, Price, Portfolio
 from ..forms import PortfolioItem
 from typing import Any
 from decimal import Decimal
-from utils import get_user_id, get_previous_url, get_portfolio_item_inventory
+from utils import get_user_id, get_previous_url, get_portfolio_item_inventory, Chart
 from django.db.models import Subquery, OuterRef, Count, F
 
 def update_portfolio_item(request: HttpRequest, entry_id: int):
@@ -74,7 +74,8 @@ class PortfolioView(TemplateView):
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         context.update({
-            'portfolio_items': self.get_portfolio_items()
+            'portfolio_items': self.get_portfolio_items(),
+            'charts': self.get_chart_datasets()
         })
         return context
     
@@ -105,7 +106,31 @@ class PortfolioView(TemplateView):
             ).distinct()
         )
         return items
-
+    
+    def get_portfolio_item_ids(self):
+        item_ids = Portfolio.objects.filter(
+            user_id=self.user_id
+        ).distinct().values_list(
+            'item_id', flat=True
+        )
+        return item_ids
+    
+    def get_chart_data_dict(self, item_id: str) -> dict[str, Any]:
+        self.chart = Chart(self.request, item_id)
+        selected_chart_metric = self.chart.get_selected_chart_metric()
+        data = {
+            'chart_metrics': self.chart.get_chart_data(selected_chart_metric),
+            'chart_dates': self.chart.get_chart_data('date'),
+            'chart_id': self.chart.get_chart_id()
+        }
+        return data
+    
+    def get_chart_datasets(self) -> list[dict[str, Any]]:
+        item_ids = self.get_portfolio_item_ids()
+        datasets = []
+        for item_id in item_ids:
+            datasets.append(self.get_chart_data_dict(item_id))
+        return datasets
 
 class PortfolioItemView(TemplateView):
     template_name = 'App/portfolio/portfolio_item.html'
