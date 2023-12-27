@@ -3,7 +3,7 @@ from django.shortcuts import HttpResponse, redirect
 from django.views.generic import TemplateView, View
 from ..models import Price
 from ..forms import YearReleased, ItemType, MetricLimits, Order
-from config import ITEMS_PER_PAGE
+from config import SEARCH_ITEMS_PER_PAGE
 from typing import Any
 from django.db.models import Q, F, Subquery, OuterRef
 from utils import get_current_page
@@ -182,10 +182,10 @@ class SearchView(TemplateView):
         self.filters = Filters(request).get_filters()
         self.order = Filters(request).get_order()
         self.items = self.get_items(self.query, filters=self.filters, orders=self.order)
-        self.last_page = math.ceil(len(self.items) / ITEMS_PER_PAGE)
+        self.last_page = math.ceil(len(self.items) / SEARCH_ITEMS_PER_PAGE)
         self.current_page = self.validate_current_page(get_current_page(request))
         self.shown_items = self.items[
-            (self.current_page - 1) * ITEMS_PER_PAGE : self.current_page * ITEMS_PER_PAGE
+            (self.current_page - 1) * SEARCH_ITEMS_PER_PAGE : self.current_page * SEARCH_ITEMS_PER_PAGE
         ]
         return super().dispatch(request, *args, **kwargs)
 
@@ -206,6 +206,11 @@ class SearchView(TemplateView):
         '''
         Returns items based off of search parameters
         '''
+        if 'year_released' or '-year_released' in orders:
+            filters.update({
+                'year_released__gt': 0 
+            })
+
         latest_date_query = Price.objects.filter(
             item=OuterRef('item_id')
         ).order_by('-date').values('date')[:1]
@@ -227,6 +232,7 @@ class SearchView(TemplateView):
             date=F('latest_date'), 
             **filters
         ).order_by(orders)
+        print(items.query)
         return items
 
     def validate_current_page(self, current_page: Any) -> int:
