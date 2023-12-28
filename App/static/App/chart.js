@@ -209,7 +209,7 @@ class CreateChart {
 	}
 
 	create_chart() {
-		new Chart(this.get_canvas(), {
+		return new Chart(this.get_canvas(), {
 			type: 'line',
 			data: {
 				labels: this.get_labels(),
