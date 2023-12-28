@@ -4,9 +4,76 @@
 {% load static %}
 
 {% block head %}
+<link rel="stylesheet" href="{% static 'App/portfolio.css' %}">
+
+<!-- Chart data -->
+<span style="visibility: hidden; display: none;" id="chart-data"></span>
+<span style="visibility: hidden; display: none;" id="chart-labels"></span>
+{{ charts|json_script:'charts' }}
 
 {% endblock %}
 
 {% block content %}
 
+<section style="background-color: blue;" id="chart-container">
+    <canvas id="chart-canvas"></canvas>
+</section>
+
+<section id="portfolio-items-section">
+    <h2>Portfolio</h2>
+    <div id="Portfolio-items">
+    {% for item in portfolio_items %}
+        <a href="{% url 'portfolio_item' item.item_id %}" class="item">
+            <div class="item-id-image-container">
+                <span>{{item.item_id}}</span>
+                <img src="{% static item.image_path %}" alt="">
+            </div>
+            <span>In your Collection: {{item.count}}</span>
+            <span>{{item.item_name}}</span>
+        </a>
+    {% endfor %}
+    </div>
+</section>
+{% endblock %}
+
+{% block script %}
+<script>
+
+    const chart_datasets = JSON.parse(document.getElementById('charts').textContent)
+    var selected_item_index = 0
+    var chart_dataset = chart_datasets[selected_item_index]
+
+    document.getElementById('chart-data').innerText = chart_dataset.chart_data
+    document.getElementById('chart-labels').innerText = chart_dataset.chart_labels
+
+    chart = new CreateChart()
+    chart = chart.create_chart()
+
+
+    var items = document.getElementsByClassName('item')
+    Array.prototype.forEach.call(items, (item) => {
+        item.addEventListener('mouseenter', () => {
+            selected_item_index = [...items].indexOf(item);
+            let chart_dataset = chart_datasets[selected_item_index]
+
+            chart.destroy()
+
+            document.getElementById('chart-labels').innerText = chart_dataset.chart_labels
+            document.getElementById('chart-data').innerText = chart_dataset.chart_data
+
+            chart = new CreateChart()
+            chart = chart.create_chart()     
+        });
+    });
+
+
+
+
+
+
+
+
+
+
+</script>
 {% endblock %}
