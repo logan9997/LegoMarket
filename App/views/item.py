@@ -27,24 +27,25 @@ class ItemView(TemplateView):
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
-        chart_metrics = self.chart.get_chart_data(self.selected_chart_metric)
+        chart_data = self.chart.get_chart_data(self.selected_chart_metric)
 
         context = super().get_context_data(**kwargs)
         context.update({
             'title': self.title,
             'item_info': self.get_item_info(),
-            'chart_metric':self.chart.get_selected_chart_metric(),
-            'chart_metrics': chart_metrics,
-            'chart_dates': self.chart.get_chart_data('date'),
-            'metric_difference':chart_metrics[-1] - chart_metrics[0],
-            'metric_percentage_difference':self.chart.get_metric_percentage_change(self.selected_chart_metric),
-            'chart_id':f'chart-{self.item_id}',
             'price_new': self.get_current_metric('price_new'),
             'price_used': self.get_current_metric('price_used'),
             'qty_new': self.get_current_metric('qty_new'),
             'qty_used': self.get_current_metric('qty_used'),
             'similar_items': self.get_similar_items(),
             'portfolio_item_inventory': get_portfolio_item_inventory(self.item_id, self.user_id),
+            'chart': {
+                'metric':self.chart.get_selected_chart_metric(),
+                'data': chart_data,
+                'labels': self.chart.get_chart_data('date'),
+                'metric_difference':chart_data[-1] - chart_data[0],
+                'metric_percentage_difference':self.chart.get_metric_percentage_change(self.selected_chart_metric),
+            },
             'forms': {
                 'chart_metric_select': chartMetricSelect,
                 'portfolio_item': PortfolioItem
