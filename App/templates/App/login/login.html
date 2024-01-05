@@ -1,0 +1,17 @@
+{% extends 'App/base.html' %}
+{% load static %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'App/authenticate.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<form id="authenticate-form"  method="POST">
+    {% csrf_token %}
+    {{form.as_ul}}
+    <span id="other-option">Don't have an account? Sign up <a href="{% url 'signup'%}">Here</a></span>
+    <button type="submit">Login!</button>
+</form>
+
+{% endblock %}
