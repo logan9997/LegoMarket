@@ -140,15 +140,14 @@ class CreateChart {
 	}
 
 	get_data() {
-		let data = JSON.parse(document.getElementById('chart-data').textContent);
-		data = data.map(function (d) {
-			return parseFloat(d)
-		})
+		let data = document.getElementById('chart-data').textContent
+		data = JSON.parse(data);
 		return data;
 	}
 
 	get_labels() {
-		let labels = JSON.parse(document.getElementById('chart-labels').textContent);
+		let labels = document.getElementById('chart-labels').textContent
+		labels = JSON.parse(labels);
 		return labels;
 	}
 
