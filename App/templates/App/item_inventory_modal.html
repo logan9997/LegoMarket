@@ -2,10 +2,13 @@
 
 <div id="openModal" class="modalDialog">
     <div id="item-inventory">
-        <h3>{{item_info.item_id}} Inventory</h3>
+        <div id="inventory-heading">
+            <h3>{{item_info.item_id}} Inventory</h3>
+            <a href="#close">X</a>
+        </div>
         <div id="inventory-table-container">
             <table id="inventory-table">
-                <form id="add-portfolio-item-form" action="{% url 'add_to_portfolio' item_info.item_id %}" method="POST">
+                <form id="add-portfolio-item-form" action="{% url 'add_portfolio_item' item_info.item_id %}" method="POST">
                     {% csrf_token %}
                     <tr id="headings-row">
                         <th></th>
@@ -29,17 +32,25 @@
                 </form>
 
                 {% for item in portfolio_item_inventory %}
-                    <form class="delete-item-form" action="{% url 'delete_portfolio_item' item.entry_id %}" method="post">
+                <tr>
+                    <form action="{% url 'update_portfolio_item' item.entry_id %}" method="POST">
                         {% csrf_token %}
-                        <tr>
-                            <td class="inventory-item-count">{{forloop.counter}}</td>
-                            <td>{{item.form.bought_for}}</td>
-                            <td>{{item.form.date_acquired}}</td>
-                            <td>{{item.form.notes}}</td>
-                            <td><button class="delete-button" type="submit">x</button></td>
-                        </tr>
-                        
+                        <td class="inventory-item-count">{{forloop.counter}}</td>
+                        <td>{{item.form.bought_for}}</td>
+                        <td>{{item.form.date_acquired}}</td>
+                        <td>{{item.form.notes}}</td>
+                        <td><button class="update-button" type="submit">Update</button></td>
                     </form>
+                    <td>
+                        <form class="delete-item-form" action="{% url 'delete_portfolio_item' item.entry_id %}" method="post">
+                            {% csrf_token %}
+                            <button class="delete-button" type="submit">Delete</button>
+                        </form>
+                    </td>
+                </tr>     
+
+
+                    
                 {% endfor %}
             </table>
         </div>
