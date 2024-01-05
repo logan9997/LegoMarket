@@ -34,17 +34,18 @@ class Login(forms.Form):
         username = self.data.get('username')
         password = self.data.get('password')
         self.user = User.objects.filter(username=username, password=password)
-        if self.user.exists():
-            return True
-        return False
+        user_exists = self.user.exists()
+        return user_exists
     
     def get_user_id(self) -> int:
         return self.user.get().user_id
 
-
 class SignUp(forms.Form):
     username = forms.CharField(
         max_length=ModelsConfig.Length.USERNAME
+    )
+    email = forms.EmailField(
+        max_length=100
     )
     password = forms.CharField(
         max_length=ModelsConfig.Length.PASSWORD,
