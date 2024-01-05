@@ -1,12 +1,14 @@
 from django.http import HttpRequest, HttpResponse, HttpResponse as HttpResponse
 from django.shortcuts import HttpResponse, redirect
 from django.views.generic import TemplateView
-from ..models import Item, Price, Portfolio
-from ..forms import PortfolioItem
+from ..models import Portfolio
+from ..forms import PortfolioItem, chartMetricSelect
 from typing import Any
-from decimal import Decimal
-from utils import get_user_id, get_previous_url, get_portfolio_item_inventory, Chart
+from utils import get_previous_url, Chart
 from django.db.models import Subquery, OuterRef, Count, F
+import json
+from django.contrib.auth.mixins import LoginRequiredMixin
+
 
 def update_portfolio_item(request: HttpRequest, entry_id: int):
     previous_url = get_previous_url(request)
@@ -33,7 +35,7 @@ def delete_portfolio_item(request: HttpRequest, entry_id: int):
     if request.method == 'POST':
         delete_item = Portfolio.objects.get(entry_id=entry_id)
 
-        user_id = get_user_id(request)
+        user_id = request.user.id
         if delete_item.user.user_id != user_id:
             return redirect(previous_url)
 
@@ -45,7 +47,7 @@ def delete_portfolio_item(request: HttpRequest, entry_id: int):
 
 
 def add_portfolio_item(request: HttpRequest, item_id: str):
-    user_id = get_user_id(request)
+    user_id = request.user.id
     previous_url = get_previous_url(request)
     if user_id == -1:
         return redirect(previous_url)
@@ -63,20 +65,25 @@ def add_portfolio_item(request: HttpRequest, item_id: str):
 
     return redirect(f'{previous_url}#openModal')
 
-
-class PortfolioView(TemplateView):
+class PortfolioView(LoginRequiredMixin, TemplateView):
     template_name = 'App/portfolio/portfolio.html'
 
     def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
-        self.user_id = request.session.get('user_id', -1)
+        self.user_id = request.user.id
         return super().dispatch(request, *args, **kwargs)
     
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context.update({
-            'portfolio_items': self.get_portfolio_items(),
-            'charts': self.get_chart_datasets()
-        })
+        portfolio_item_ids = self.get_portfolio_item_ids()
+        if portfolio_item_ids: 
+            context.update({
+                'portfolio_items': self.get_portfolio_items(),
+                'charts': self.get_chart_datasets(),
+                'chart': self.get_chart_data_dict(self.get_portfolio_item_ids()[0], jsonify=False),
+                'forms': {
+                    'chart_metric_select': chartMetricSelect
+                }
+            })
         return context
     
     def get_portfolio_items(self):
@@ -115,14 +122,22 @@ class PortfolioView(TemplateView):
         )
         return item_ids
     
-    def get_chart_data_dict(self, item_id: str) -> dict[str, Any]:
+    def get_chart_data_dict(self, item_id: str, jsonify=True) -> dict[str, Any]:
         self.chart = Chart(self.request, item_id)
-        selected_chart_metric = self.chart.get_selected_chart_metric()
+        metric = self.chart.get_selected_chart_metric()
+        chart_data = self.chart.get_chart_data(metric)
         data = {
-            'chart_metrics': self.chart.get_chart_data(selected_chart_metric),
-            'chart_dates': self.chart.get_chart_data('date'),
-            'chart_id': self.chart.get_chart_id()
+            'data': chart_data,
+            'labels': self.chart.get_chart_data('date'),
+            'metric': self.chart.get_selected_chart_metric(),
+            'metric_difference': chart_data[-1] - chart_data[0],
+            'metric_percentage_difference': self.chart.get_metric_percentage_change(metric)
         }
+
+        if jsonify:
+            data['data'] = json.dumps(data['data'], default=str)
+            data['labels'] = json.dumps(data['labels'], default=str)
+
         return data
     
     def get_chart_datasets(self) -> list[dict[str, Any]]:
