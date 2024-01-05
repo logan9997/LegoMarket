@@ -6,19 +6,22 @@
 {% block head %}
 <link rel="stylesheet" href="{% static 'App/portfolio.css' %}">
 
-<!-- Chart data -->
-<span style="visibility: hidden; display: none;" id="chart-data"></span>
-<span style="visibility: hidden; display: none;" id="chart-labels"></span>
-{{ charts|json_script:'charts' }}
+{% if chart %}
+    <!-- Chart datasets -->
+    {{ charts|json_script:'charts' }}
+
+    <!-- Chart data for item at index 0 -->
+    {{ chart.labels|json_script:'chart-labels' }}
+    {{ chart.data|json_script:'chart-data' }}
+
+    {% include 'App/chart_metric_styles.html' %}
+{% endif %}
 
 {% endblock %}
 
 {% block content %}
 
-<section style="background-color: blue;" id="chart-container">
-    <canvas id="chart-canvas"></canvas>
-</section>
-
+{% if portfolio_items %}
 <section id="portfolio-items-section">
     <h2>Portfolio</h2>
     <div id="Portfolio-items">
@@ -28,41 +31,61 @@
                 <span>{{item.item_id}}</span>
                 <img src="{% static item.image_path %}" alt="">
             </div>
-            <span>In your Collection: {{item.count}}</span>
-            <span>{{item.item_name}}</span>
+            <div>
+                <span>{{item.item_name}}</span>
+                <span>In your Collection: {{item.count}}</span>
+            </div>
         </a>
     {% endfor %}
     </div>
 </section>
+{% else %}
+<section id="no-items-container">
+    <span>No Items in your portfolio...</span>
+    <span>Search for items <a href="{% url 'search' %}">here</a></span>
+</section>
+{% endif %}
+
+{% if chart %}
+<section id="chart-container">
+    {% include 'App/chart.html' %}
+</section>
+{% endif %}
+
 {% endblock %}
 
 {% block script %}
 <script>
 
     const chart_datasets = JSON.parse(document.getElementById('charts').textContent)
-    var selected_item_index = 0
-    var chart_dataset = chart_datasets[selected_item_index]
+    const items = document.getElementsByClassName('item')
 
-    document.getElementById('chart-data').innerText = chart_dataset.chart_data
-    document.getElementById('chart-labels').innerText = chart_dataset.chart_labels
+    function create_chart(hovered_item_index) {
+        if (chart) {
+            chart.destroy()
+        }
 
-    chart = new CreateChart()
-    chart = chart.create_chart()
+        let chart_dataset = chart_datasets[hovered_item_index]
+        document.getElementById('chart-labels').innerText = chart_dataset.labels
+        document.getElementById('chart-data').innerText = chart_dataset.data
+        
+        chart = new CreateChart()
+        chart = chart.create_chart() 
+        return chart  
+    }
 
+    // onload, set the chart for the last hovered item
+    window.addEventListener('load', () => {
+        let hovered_item_index = sessionStorage.getItem('hovered_item_index')
+        var chart = create_chart(hovered_item_index)
+    })
 
-    var items = document.getElementsByClassName('item')
+    // when mouse over any portfolio item update chart to display data for that item
     Array.prototype.forEach.call(items, (item) => {
         item.addEventListener('mouseenter', () => {
-            selected_item_index = [...items].indexOf(item);
-            let chart_dataset = chart_datasets[selected_item_index]
-
-            chart.destroy()
-
-            document.getElementById('chart-labels').innerText = chart_dataset.chart_labels
-            document.getElementById('chart-data').innerText = chart_dataset.chart_data
-
-            chart = new CreateChart()
-            chart = chart.create_chart()     
+            hovered_item_index = [...items].indexOf(item);
+            sessionStorage.setItem('hovered_item_index', hovered_item_index)
+            var chart = create_chart(hovered_item_index)    
         });
     });
 
