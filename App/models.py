@@ -1,6 +1,7 @@
 from django.db import models
 from config import ModelsConfig
-from django.db.models import F, ExpressionWrapper, Case, When, Value
+from django.contrib.auth.models import User
+
 
 class Item(models.Model):
     item_id = models.CharField(
@@ -44,18 +45,6 @@ class Price(models.Model):
 
     class Meta:
         unique_together = ('item', 'date')
-
-
-class User(models.Model):
-    user_id = models.AutoField(
-        primary_key=True
-    )
-    username = models.CharField(
-        max_length=ModelsConfig.Length.USERNAME
-    )
-    password = models.CharField(
-        max_length=ModelsConfig.Length.PASSWORD
-    )
 
 
 class Portfolio(models.Model):
