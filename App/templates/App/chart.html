@@ -1,12 +1,29 @@
-{% load static %}
+{% load tags %}
 
-{{ chart_dates|json_script:'chart-labels' }}
-{{ chart_metrics|json_script:'chart-data' }}
-{{ chart_id|json_script:'chart-id' }}
+<div id="current-metric-container">
+    <div id="chart-metrics">
+        <span id="current-metric-name">{{chart.metric|metric_convert}}</span>
+        <span id="current-metric">{% if 'price' in chart.metric %}£{% endif %}{{chart.data|index:-1}}</span>
+        <span id="metric-difference">
+            {%if 'price' in chart.metric %}
+            {{chart.metric_difference|add_sign|insert:"£,1"}}
+            {% else %}
+            {{chart.metric_difference|add_sign}}
+            {% endif %}
+        </span>
+        <span id="metric-percentage-difference">({{chart.metric_percentage_difference|add_sign}}%)</span>
+    </div>
+    <span id="current-date"></span>
+</div>
 
-<canvas id="{{chart_id}}"></canvas>
-
+<span style="visibility: hidden;" id="chart-labels"></span>
+<span style="visibility: hidden;" id="chart-data"></span>
+<canvas id="chart-canvas"></canvas>
 <script>
-    chart = new CreateChart()
-    chart.create_chart()
+    var chart = new CreateChart()
+    chart = chart.create_chart()
 </script>
+
+<form method="GET">
+    {{ forms.chart_metric_select }}
+</form>
