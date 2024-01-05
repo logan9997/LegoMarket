@@ -1,0 +1,60 @@
+#block-content {
+    display: flex;
+}
+
+#chart-container {
+    width: 50%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: auto;
+    padding-bottom: 1rem;
+    box-shadow: 0.1rem 0.1rem 0.1rem black;
+}
+
+#portfolio-items-section {
+    width: 44%;
+    margin: auto;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.item {
+    display: block;
+}
+
+.item:hover {
+    background-color: whitesmoke;
+}
+
+.item *, .item:hover {
+    text-decoration: none;
+    color: black;
+}
+
+.item {
+    border-bottom: 0.1rem black solid;
+    padding: 1rem;
+    display: flex;
+    height: 10rem;
+}
+
+.item * {
+    margin-right: 1rem;
+}
+
+.item div {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.item-id-image-container {
+    text-align: center;
+}
+
+.item img {
+    height: 7rem;
+    width: 7rem;
+}
