@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
-    home, item, login, signup, search, portfolio
+    home, item, authenticate, search, portfolio
 )
 
 urlpatterns = [
@@ -13,6 +13,7 @@ urlpatterns = [
     path('add_portfolio_item/<str:item_id>/', portfolio.add_portfolio_item, name='add_portfolio_item'),
     path('delete_portfolio_item/<int:entry_id>/', portfolio.delete_portfolio_item, name='delete_portfolio_item'),
     path('update_portfolio_item/<int:entry_id>', portfolio.update_portfolio_item, name='update_portfolio_item'),   
-    path('login/', login.LoginView.as_view(), name='login'),
-    path('signup/', signup.SignUpView.as_view(), name='signup'),
+    path('login/', authenticate.LoginView.as_view(), name='login'),
+    path('signup/', authenticate.SignUpView.as_view(), name='signup'),
+    path('logout/', authenticate.logout_view, name='logout')
 ]
