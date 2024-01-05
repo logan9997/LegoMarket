@@ -8,10 +8,10 @@ class Chart:
 
     def __init__(self, request: HttpRequest, item_id: str) -> None:
         from App.models import Price
-        self.price = Price
+        self.Price = Price
         self.request = request
         self.item_id = item_id
-    
+
     def get_selected_chart_metric(self) -> str:
         '''
         Returns and validates the selected chart_metric
