@@ -28,6 +28,8 @@ class DataCollect:
             data = [item_id, date]
             conditions = ['N', 'U']
 
+            print(f'\n{item_id}', end='\r')
+
             for condition in conditions:
                 item_type = item_type_convert(item['item_type'])
 
