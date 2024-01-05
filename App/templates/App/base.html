@@ -32,6 +32,9 @@
 
     {% get_item_ids as item_ids %}
     {{ item_ids|json_script:'item-ids' }}
+
+    <!-- Assign template tag result to variable to be used inside 'if' statements -->
+    {% logged_in as logged_in_result %}
 </head>
 
 <body>
@@ -59,15 +62,39 @@
         </div>
 
         <div>
-            {% get_username as username %}
-            <span>Logged in as: {{username}}</span>
+            {% if logged_in_result %}
+                {% get_username as username %}
+                <div id="logged-in-container">
+                    <span>Logged in as: {{username}}</span>
+                    <a id="logout-link" href="{% url 'logout' %}">Logout</a>
+                </div>
+            {% else %}
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'signup' %}">Sign up</a>
+                    </li>
+                </ul>
+            {% endif %}
+
         </div>
     </nav>
     <div id="search-suggestions-container"></div>
 
     <section id="block-content">
     {% block content %} {% endblock %}
+
     </section>
+
+    {% if messages %}
+    <ul id="messages">
+        {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+            {% endfor %}
+    </ul>
+{% endif %}
 
     <footer>
         <div>
