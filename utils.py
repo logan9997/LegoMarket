@@ -175,3 +175,12 @@ def get_portfolio_item_inventory(item_id: str, user_id: int) -> list[dict[str, A
         forms.append(data)
         
     return forms
+
+
+def get_signup_error(error: str):
+    if 'duplicate key' in error:
+        if 'username' in error:
+            return 'username already exists'
+        elif 'email' in error:
+            return 'email already exists'
+    return 'Error signing up'    
