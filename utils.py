@@ -1,8 +1,9 @@
 from typing import Any
 import time
 from django.db.models import Min, Max
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponse
 from config import NO_USER_LOGGED_IN_VALUE, METRICS
+from django.shortcuts import redirect
 
 class Chart:
 
@@ -184,3 +185,14 @@ def get_signup_error(error: str):
         elif 'email' in error:
             return 'email already exists'
     return 'Error signing up'    
+
+
+class AuthenticatedUserNotAllowed:
+    '''
+    Don't allow authenticated users to visit a view
+    '''
+    def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        if request.user.is_authenticated:
+            previous_url = get_previous_url(request)
+            return redirect(previous_url)
+        return super().dispatch(request, *args, **kwargs)
