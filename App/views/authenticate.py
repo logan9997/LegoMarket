@@ -1,4 +1,4 @@
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, HttpResponse as HttpResponse
 from django.shortcuts import HttpResponse, redirect
 from django.views.generic import FormView
 from typing import Any
@@ -7,6 +7,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.messages import constants 
+from utils import get_signup_error, AuthenticatedUserNotAllowed
 
 
 def logout_view(request):
@@ -14,7 +15,7 @@ def logout_view(request):
     return redirect('home')
 
 
-class LoginView(FormView):
+class LoginView(AuthenticatedUserNotAllowed, FormView):
     template_name = 'App/login/login.html'
     success_url = '/'
     form_class = Login
@@ -37,7 +38,7 @@ class LoginView(FormView):
         return super().post(request, *args, **kwargs)
 
 
-class SignUpView(FormView):
+class SignUpView(AuthenticatedUserNotAllowed, FormView):
     template_name = 'App/signup/signup.html'
     success_url = '/'
     form_class = SignUp
@@ -59,11 +60,17 @@ class SignUpView(FormView):
         password = request.POST['password']
         confirm_password = request.POST['confirm_password']
 
+        if password != confirm_password:
+            messages.add_message(request, constants.ERROR, 'Passwords do not match')
+            return super().post(request, *args, **kwargs)
+
         try:
             user = User.objects.create_user(username, email, password)
             login(request, user)
-        except:
-            messages.add_message(request, constants.ERROR, 'Error Signing up')
+            return redirect('home')
+        except Exception as Error:
+            error_message = get_signup_error(str(Error))
+            messages.add_message(request, constants.ERROR, error_message)
             
         return super().post(request, *args, **kwargs)
     
