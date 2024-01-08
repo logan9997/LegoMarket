@@ -2,12 +2,11 @@ from django.http import HttpRequest, HttpResponse
 from django.views.generic import TemplateView
 from typing import Any
 from ..models import Item, Price
-from django.db.models import Subquery, OuterRef, F, DecimalField, Func, Value, ExpressionWrapper, Max
+from django.db.models import Subquery, OuterRef, F, DecimalField, Func, Value, ExpressionWrapper
 from django.db.models.manager import BaseManager
-from utils import timer
 from config import DATE_FORMAT
 from datetime import datetime, timedelta
-from decimal import Decimal
+
 
 class HomeView(TemplateView):
     template_name = 'App/home/home.html'
