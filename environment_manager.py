@@ -40,7 +40,9 @@ class Manager:
         }
     
     def update_value(key, new_value):
+        '''Update value of key inside .env file'''
         dotenv.set_key('.env', key, new_value)
 
     def get_value(key):
+        '''Get value of key from .env file'''
         return os.environ.get(key)
