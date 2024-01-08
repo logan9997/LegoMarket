@@ -6,6 +6,8 @@
 {% block head %}
 <link rel="stylesheet" href="{% static 'App/portfolio.css' %}">
 
+{{portfolio_items|json_script:'portfolio-items'}}
+
 {% if chart %}
     <!-- Chart datasets -->
     {{ charts|json_script:'charts' }}
@@ -23,7 +25,6 @@
 
 {% if portfolio_items %}
 <section id="portfolio-items-section">
-    <h2>Portfolio</h2>
     <div id="Portfolio-items">
     {% for item in portfolio_items %}
         <a href="{% url 'portfolio_item' item.item_id %}" class="item">
@@ -48,6 +49,8 @@
 
 {% if chart %}
 <section id="chart-container">
+    <h2 id="selected-item-name"></h2>
+    <a id="selected-item-id"></a>
     {% include 'App/chart.html' %}
 </section>
 {% endif %}
@@ -74,10 +77,23 @@
         return chart  
     }
 
+    function update_selected_item_name(hovered_item_index) {
+        let portfolio_items = JSON.parse(document.getElementById('portfolio-items').textContent)
+        document.getElementById('selected-item-name').innerHTML = portfolio_items[hovered_item_index].item_name
+        
+        let item_id_container = document.getElementById('selected-item-id')
+        let item_id = portfolio_items[hovered_item_index].item_id
+        item_id_container.innerHTML = item_id
+        item_id_container.href = `${window.origin}/item/${item_id}`
+    }
+
     // onload, set the chart for the last hovered item
     window.addEventListener('load', () => {
         let hovered_item_index = sessionStorage.getItem('hovered_item_index')
         var chart = create_chart(hovered_item_index)
+        update_selected_item_name(hovered_item_index)
+
+        items[hovered_item_index].style.backgroundColor = 'whitesmoke'
     })
 
     // when mouse over any portfolio item update chart to display data for that item
@@ -86,6 +102,15 @@
             hovered_item_index = [...items].indexOf(item);
             sessionStorage.setItem('hovered_item_index', hovered_item_index)
             var chart = create_chart(hovered_item_index)    
+            update_selected_item_name(hovered_item_index)
+
+            for (let i = 0; i < items.length; i ++) {
+                if (i != hovered_item_index) {
+                    items[i].style.backgroundColor = 'white '
+                } else{
+                    items[i].style.backgroundColor = 'whitesmoke'
+                }
+            }
         });
     });
 
