@@ -19,7 +19,11 @@
 <section id="item-profile">
     <div id="top-half">
         <h3 id="item-name">{{item_info.item_name}}</h3>
-        <a href="#openModal" id="add-to-portfolio-button">Add To Portfolio</a>
+        
+        <a {% if request.user.is_authenticated %} href="#openModal" {% else %} href="{% url 'login' %}" {% endif %}
+        id="add-to-portfolio-button">Add To Portfolio</a>
+        
+
     </div>
     <div id="bottom-half" class="row">
         <div id="item-image-container" class="item-div">
@@ -63,24 +67,3 @@
 
 {% endblock %}
 
-{% block script %}
-
-{{chart_metric|json_script:"chart-metric"}}
-
-<script>
-    const url_params = new URLSearchParams(window.location.search)
-
-    let form = document.getElementById('id_chart_metric')
-    let labels = form.getElementsByTagName('label')
-    let chart_metric = JSON.parse(document.getElementById('chart-metric').textContent)
-
-    for (let i = 0; i < labels.length; i ++) {
-        let input = labels[i].getElementsByTagName('input')[0]
-        if (input.value == chart_metric) {
-            console.log(input)
-            labels[i].setAttribute('class', 'bg-primary')
-            break
-        }
-    } 
-</script>
-{% endblock %}
