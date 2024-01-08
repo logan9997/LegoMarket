@@ -11,6 +11,10 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 def update_portfolio_item(request: HttpRequest, entry_id: int):
+
+    # if not request.user.is_authenticated:
+    #     return redirect(get_previous_url(request))
+
     previous_url = get_previous_url(request)
     if request.method == 'POST':
         form = PortfolioItem(request.POST)
@@ -77,7 +81,7 @@ class PortfolioView(LoginRequiredMixin, TemplateView):
         portfolio_item_ids = self.get_portfolio_item_ids()
         if portfolio_item_ids: 
             context.update({
-                'portfolio_items': self.get_portfolio_items(),
+                'portfolio_items': list(self.get_portfolio_items()),
                 'charts': self.get_chart_datasets(),
                 'chart': self.get_chart_data_dict(self.get_portfolio_item_ids()[0], jsonify=False),
                 'forms': {
