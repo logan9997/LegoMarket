@@ -115,12 +115,6 @@ footer div {
     justify-content: space-between;
 }
 
-#inventory-heading a {
-    color: black;
-    text-decoration: none;
-    font-size: 1.2rem;
-}
-
 #inventory-table-container {
     max-height: 300px;
     overflow-y: auto;
@@ -200,4 +194,30 @@ footer div {
     left: 0;
     top: 0;
     visibility: hidden;
+}
+
+#current-metric-container {
+    height: 10%;
+    padding-top: 0.9%;
+    font-size: 1.2rem;
+    display: flex;
+    justify-content: space-between;
+}
+
+#chart-metrics span {
+    margin: 0 0.1rem 0;
+}
+
+#current-date {
+    margin-right: 4rem;
+}
+
+#chart-container {
+    height: 29rem;
+    margin-bottom: 1rem;
+}
+
+#chart-container canvas {
+    height: 80% !important;
+    width: 100% !important;
 }

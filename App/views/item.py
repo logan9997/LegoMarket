@@ -5,7 +5,6 @@ from ..models import Item, Price, Portfolio
 from typing import Any
 from decimal import Decimal
 from ..forms import chartMetricSelect, PortfolioItem
-from utils import get_user_id
 from fuzzywuzzy import fuzz
 from config import METRICS, MAX_RECENTLY_VIEWED_ITEMS
 from utils import get_portfolio_item_inventory, Chart
@@ -16,7 +15,7 @@ class ItemView(TemplateView):
 
     def dispatch(self, request: HttpRequest, item_id:str, *args: Any, **kwargs: Any) -> HttpResponse:
         self.item_id = item_id
-        self.user_id = get_user_id(request)
+        self.user_id = request.user.id
         if not self.item_id_valid():
             return redirect('home')
         self.chart = Chart(request, item_id)
@@ -38,7 +37,8 @@ class ItemView(TemplateView):
             'qty_new': self.get_current_metric('qty_new'),
             'qty_used': self.get_current_metric('qty_used'),
             'similar_items': self.get_similar_items(),
-            'portfolio_item_inventory': get_portfolio_item_inventory(self.item_id, self.user_id),
+            'inventory': get_portfolio_item_inventory(self.item_id, self.user_id),
+            'item_id': self.item_id,
             'chart': {
                 'metric':self.chart.get_selected_chart_metric(),
                 'data': chart_data,
@@ -51,6 +51,7 @@ class ItemView(TemplateView):
                 'portfolio_item': PortfolioItem
             },
         })
+        print(context['inventory'])
         return context
              
     def item_id_valid(self) -> bool:

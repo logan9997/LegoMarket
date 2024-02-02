@@ -13,10 +13,9 @@
     {{ charts|json_script:'charts' }}
 
     <!-- Chart data for item at index 0 -->
-    {{ chart.labels|json_script:'chart-labels' }}
     {{ chart.data|json_script:'chart-data' }}
+    {{ chart.labels|json_script:'chart-labels' }}
 
-    {% include 'App/chart_metric_styles.html' %}
 {% endif %}
 
 {% endblock %}
@@ -27,7 +26,7 @@
 <section id="portfolio-items-section">
     <div id="Portfolio-items">
     {% for item in portfolio_items %}
-        <a href="{% url 'portfolio_item' item.item_id %}" class="item">
+        <a href="#modal_{{item.item_id}}" class="item">
             <div class="item-id-image-container">
                 <span>{{item.item_id}}</span>
                 <img src="{% static item.image_path %}" alt="">
@@ -47,6 +46,7 @@
 </section>
 {% endif %}
 
+
 {% if chart %}
 <section id="chart-container">
     <h2 id="selected-item-name"></h2>
@@ -54,6 +54,10 @@
     {% include 'App/chart.html' %}
 </section>
 {% endif %}
+
+{% for item_id in inventories %}
+    {% include 'App/item_inventory_modal.html' with inventory=inventories|get:item_id item_id=item_id modal_id='modal_'|add:item_id %}
+{% endfor %}
 
 {% endblock %}
 
@@ -72,8 +76,8 @@
         document.getElementById('chart-labels').innerText = chart_dataset.labels
         document.getElementById('chart-data').innerText = chart_dataset.data
         
-        chart = new CreateChart()
-        chart = chart.create_chart() 
+        new_chart = new CreateChart()
+        chart = new_chart.create_chart() 
         return chart  
     }
 
@@ -90,6 +94,9 @@
     // onload, set the chart for the last hovered item
     window.addEventListener('load', () => {
         let hovered_item_index = sessionStorage.getItem('hovered_item_index')
+        if (hovered_item_index == null) {
+            hovered_item_index = 0
+        }
         var chart = create_chart(hovered_item_index)
         update_selected_item_name(hovered_item_index)
 
@@ -113,15 +120,6 @@
             }
         });
     });
-
-
-
-
-
-
-
-
-
 
 </script>
 {% endblock %}

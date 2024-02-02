@@ -22,6 +22,8 @@
 <script>
     var chart = new CreateChart()
     chart = chart.create_chart()
+
+    var update_chart_metrics = new UpdateChartMetrics()
 </script>
 
 <form method="GET">
@@ -32,13 +34,16 @@
     const url_params = new URLSearchParams(window.location.search)
     var chart_metric = url_params.get('chart_metric')
 
+    if (chart_metric === null) {
+        chart_metric = 'price_new'
+    }
+
     let form = document.getElementById('id_chart_metric')
     let labels = form.getElementsByTagName('label')
 
     for (let i = 0; i < labels.length; i++) {
         let input = labels[i].getElementsByTagName('input')[0]
         if (input.value == chart_metric) {
-            console.log(input)
             labels[i].setAttribute('class', 'bg-primary')
             break
         }

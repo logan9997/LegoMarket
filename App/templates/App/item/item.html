@@ -10,8 +10,6 @@
 {{ chart.labels|json_script:'chart-labels' }}
 {{ chart.data|json_script:'chart-data' }}
 
-{% include 'App/chart_metric_styles.html' %}
-
 {% endblock %}
 
 {% block content %}
@@ -20,7 +18,7 @@
     <div id="top-half">
         <h3 id="item-name">{{item_info.item_name}}</h3>
         
-        <a {% if request.user.is_authenticated %} href="#openModal" {% else %} href="{% url 'login' %}" {% endif %}
+        <a {% if request.user.is_authenticated %} href="#modal_{{item_info.item_id}}" {% else %} href="{% url 'login' %}" {% endif %}
         id="add-to-portfolio-button">Add To Portfolio</a>
         
 
@@ -56,14 +54,14 @@
         {% for item in similar_items %}
         <div class="similar-item">
             <a href="{% url 'item' item.item_id %}">{{item.item_id}}</a>
-            <img src="{% static item.image_path %}" alt="aaaaaa">
+            <img src="{% static item.image_path %}">
             <span>{{item.item_name}}</span>
         </div>
         {% endfor %}
     </div>
 </section>
 
-{% include 'App/item_inventory_modal.html' %}
+{% include 'App/item_inventory_modal.html' with inventory=inventory modal_id='modal_'|add:item_info.item_id %}
 
 {% endblock %}
 

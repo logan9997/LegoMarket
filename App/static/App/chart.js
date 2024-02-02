@@ -1,125 +1,158 @@
-class UpdateMetric {
+class UpdateChartMetrics {
 
-	constructor() {
-		let chart = new CreateChart
-		this.data = chart.get_data()
-		this.dates = chart.get_labels()
-		this.current_metric = document.getElementById('current-metric')
-		this.current_date = document.getElementById('current-date')
-		this.metric_difference = document.getElementById('metric-difference')
-		this.metric_percentage_difference = document.getElementById('metric-percentage-difference')		
-		this.chart_metric = this.get_chart_metric()
-		this.end_index = this.data.length-1
+    constructor() {
+		this.current_metric_name = document.getElementById('current-metric-name').innerHTML
+        this.current_metric = document.getElementById('current-metric')
+        this.metric_difference = document.getElementById('metric-difference')
+        this.metric_percentage_difference = document.getElementById('metric-percentage-difference')
+        this.current_date = document.getElementById('current-date')
+    }
 
-	}
-
-	get_chart_metric() {
-		let chart_metric = new URLSearchParams(window.location.search).get('chart_metric')
-		if (chart_metric == null) {
-			return 'price_new'
-		}
-		return chart_metric
-	}
-
-	get_current_metric(current_metric) {
-		if (this.chart_metric.includes('price')) {
-			current_metric = `£${current_metric}` 
-			current_metric = this.zero_pad(current_metric)
-		}
-		return current_metric
-	}
-
-	get_metric_difference(index) {
-		let difference = this.data[index] - this.data[0]
-		difference = Math.round(difference * 100) / 100
-		difference = this.add_sign(difference)
-		if (this.chart_metric.includes('price')) {
-			difference = this.zero_pad(difference)
-			let difference_chars = difference.split('')
-			difference_chars.splice(1, 0, '£')
-			difference = difference_chars.join('')
-		} 
-		return difference
-	}
-
-	zero_pad(number) {
-		number = String(number)
-		if (!number.includes('.')) {
-			return `${number}.00` 
-		}
-
-		let remove_chars = ['(', ')', '%']
-		for (let i = 0; i < remove_chars.length; i ++) {
-			if (number.includes(remove_chars[i])) {
-				number = number.replace(remove_chars[i], '')
-			}
-		}
-
-		let number_split = number.split('.')
-		let int = number_split[0]
-		let decimal = number_split[1]
-		if (decimal.length == 1) {
-			decimal = `${decimal}0`
-		}
-		return `${int}.${decimal}`
-	}
-
-	get_metric_percentage_difference(index) {
-		let hovered_metric = this.data[index]
-		if (hovered_metric == 0) {
-			return '(+100%)'
-		}
-		let percentage_difference = (this.data[0] - hovered_metric) / this.data[0] * -100
-		percentage_difference = Math.round(percentage_difference * 100) / 100
-		percentage_difference =  this.add_sign(percentage_difference)
-		return `(${this.zero_pad(percentage_difference)}%)`
+	add_currency_sign(number) {
+        if (number >= 0) {
+            number = `+£${number}`
+        } else {
+            number = `-£${Math.abs(number)}`
+        }
+        return number
 	}
 
 	add_sign(number) {
 		if (number >= 0) {
-			return `+${number}`
+			number = `+${number}`
+		} 
+		return number
+	}
+
+	zero_pad(number) {
+		let number_string = number.toString()
+		if (number_string.includes('.')) {
+			let integer = number_string.split('.')[0]
+			let decimal = number_string.split('.')[1]
+			if (decimal.length != 2) {
+				decimal = `${decimal}0`
+			}
+			number = `${integer}.${decimal}`
 		}
 		return number
 	}
 
-	set_colour(element, current_metric_value, oldest_metric_value) {
-		if (current_metric_value >= oldest_metric_value) {
-			element.style.color = 'green';
+	remove_decimal(number) {
+		let number_string = number.toString()
+		if (number_string.includes('.')) {
+			let integer = number_string.split('.')[0]
+			number = parseInt(integer, 10)
+		}
+		return number
+	}
+
+	set_colour(number, element) {
+		if (number >= 0) {
+			element.style.color = 'green'
 		} else {
-			element.style.color = 'red';
-		} 
+			element.style.color = 'red'
+		}
 	}
 
-	update_hovered_metric(index) {
-		this.current_metric.innerText = this.get_current_metric(this.data[index])
-		this.current_date.innerText = this.dates[index]
-		this.metric_difference.innerText = this.get_metric_difference(index)
-		this.metric_percentage_difference.innerText = this.get_metric_percentage_difference(index)
+    set_current_metric(earliest_metric, current_metric) {
+		if (this.current_metric_name.includes('Price')) {
+        	this.current_metric.innerHTML = `£${this.zero_pad(current_metric)}`
+		} else {
+			this.current_metric.innerHTML = current_metric
+		}
+		let metric_difference = current_metric - earliest_metric
+		this.set_colour(metric_difference, this.current_metric)
+		this.set_colour(metric_difference, this.metric_difference)
+    }
 
-		this.set_colour(this.current_metric, this.data[index], this.data[0])
-		this.set_colour(this.metric_difference, this.data[index], this.data[0])
-		this.set_colour(this.metric_percentage_difference, this.data[index], this.data[0])
-
+	get_metric_difference(earliest, oldest) {
+		let metric_difference = oldest - earliest
+		metric_difference = metric_difference.toFixed(2)
+		if (this.current_metric_name.includes('Price')) {
+			metric_difference = this.add_currency_sign(metric_difference)
+			metric_difference = this.zero_pad(metric_difference)
+		} else {
+			metric_difference = this.remove_decimal(metric_difference)
+			metric_difference = this.add_sign(metric_difference)
+		}
+		return metric_difference
 	}
 
-	reset_hovered_metric() {
-		this.current_metric.innerText = this.get_current_metric(this.data[this.end_index])
-		this.current_date.innerText = ''
-		this.metric_difference.innerText = this.get_metric_difference(this.end_index)
-		this.metric_percentage_difference.innerText = this.get_metric_percentage_difference(this.end_index) 
+    set_metric_difference(metric_difference) {
+		this.metric_difference.innerHTML = metric_difference
+    }
 
-		this.set_colour(this.current_metric, this.data[this.end_index], this.data[0])
-		this.set_colour(this.metric_difference, this.data[this.end_index], this.data[0])
-		this.set_colour(this.metric_percentage_difference, this.data[this.end_index], this.data[0])
-
+	get_metric_percentage_difference(earliest, latest) {
+		console.log(earliest, latest)
+		let metric_percentage_difference = 0
+		if (earliest != latest) {
+			if (earliest == 0) {
+				return 100
+			}
+	        metric_percentage_difference = (earliest - latest) / earliest * -100
+		}
+		return metric_percentage_difference
 	}
+
+    set_metric_percentage_difference(metric_percentage_difference) {
+		this.set_colour(metric_percentage_difference, this.metric_percentage_difference)
+        metric_percentage_difference = `(${this.add_sign(metric_percentage_difference.toFixed(2))}%)`
+        this.metric_percentage_difference.innerHTML = metric_percentage_difference
+    }
+
+	set_current_date(date) {
+		this.current_date.innerHTML = date 
+	}
+
 }
 
 class CreateChart {
 
 	constructor() {
-		this.is_hovered = true
+		this.data = this.get_data()
+		this.labels = this.get_labels()
 		this.set_mouseout_listener()
+		this.set_initial_metric_colours()
+		this.set_metric_values(this.data.length - 1)
+	}
+
+	set_metric_values(index) {
+		let update_chart_metrics = new UpdateChartMetrics()
+		update_chart_metrics.set_current_metric(this.data[0], this.data[index])
+
+		let metric_difference = update_chart_metrics.get_metric_difference(this.data[0], this.data[index])
+		update_chart_metrics.set_metric_difference(metric_difference)
+
+		let metric_percentage_difference = update_chart_metrics.get_metric_percentage_difference(this.data[0], this.data[index])
+		update_chart_metrics.set_metric_percentage_difference(metric_percentage_difference)
+
+		update_chart_metrics.set_current_date(this.labels[index])
+
+	}
+
+	set_initial_metric_colours() {
+		const remove_chars = ['(', ')', '%', '+']
+		let update_chart_metrics = new UpdateChartMetrics()
+
+		let elemets_colours_to_set = [
+			update_chart_metrics.current_metric, 
+			update_chart_metrics.metric_difference, 
+			update_chart_metrics.metric_percentage_difference
+		]
+		for (let i = 0; i < 3; i ++) {
+			let value = elemets_colours_to_set[i].innerHTML
+			for (let j = 0; j < value.length; j ++) {
+				if (remove_chars.includes(value[j])) {
+					value = value.replace(value[j], '')
+				}
+				value = parseFloat(value)
+				if (value >= 0) {
+					elemets_colours_to_set[i].style.color = 'green'
+				} else {
+					elemets_colours_to_set[i].style.color = 'red'
+				}
+			}
+		}
 	}
 
 	get_canvas() {
@@ -131,11 +164,9 @@ class CreateChart {
 	set_mouseout_listener() {
 		let chart = this.get_canvas()
 		chart.addEventListener('mouseout', () => {
-			if (this.is_hovered) {
-				let update_metric = new UpdateMetric()
-				update_metric.reset_hovered_metric()   
-				this.is_hovered = false
-			}
+			let data = this.data
+			let index = data.length - 1
+			this.set_metric_values(index)			
 		})
 	}
 
@@ -183,7 +214,7 @@ class CreateChart {
 					grid: {
 						display: false
 					},
-					min: this.get_min_value(this.get_data())
+					min: this.get_min_value(this.data)
 				},
 			},
 			plugins: {
@@ -197,10 +228,8 @@ class CreateChart {
 			},
 			onHover: function (event, chartElement) {
 				if (chartElement.length > 0) {
-					var index = chartElement[0].index;
-					let update_metric = new UpdateMetric()
-					update_metric.update_hovered_metric(index)
-					this.is_hovered = true
+					let index = chartElement[0].index;
+					new CreateChart().set_metric_values(index)
 				}
             },
 		}
@@ -213,7 +242,7 @@ class CreateChart {
 			data: {
 				labels: this.get_labels(),
 				datasets: [{
-					data: this.get_data(),
+					data: this.data,
 					backgroundColor: this.get_gradient(),
 					borderColor: 'rgb(255, 10, 86,1)',
 					pointRadius: 0,

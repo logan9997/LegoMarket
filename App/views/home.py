@@ -4,8 +4,6 @@ from typing import Any
 from ..models import Item, Price
 from django.db.models import Subquery, OuterRef, F, DecimalField, Func, Value, ExpressionWrapper
 from django.db.models.manager import BaseManager
-from config import DATE_FORMAT
-from datetime import datetime, timedelta
 
 
 class HomeView(TemplateView):
@@ -51,8 +49,8 @@ class HomeView(TemplateView):
             output_field=DecimalField()
         )
 
-        last_weeks_date = datetime.now() - timedelta(days=7)
-        last_weeks_date = last_weeks_date.strftime(DATE_FORMAT)
+        dates = Price.objects.distinct('date').values_list('date', flat=True).order_by('date')
+        last_weeks_date = dates[len(dates) - 7]
 
         result = Price.objects.filter(
             date=last_weeks_date, price_new__gt=0

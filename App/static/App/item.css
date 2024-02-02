@@ -99,33 +99,6 @@ body {
     margin-left: 1rem;
 }
 
-#current-metric-container {
-    height: 10%;
-    padding-top: 0.9%;
-    font-size: 1.2rem;
-    padding-left: 1rem;
-    display: flex;
-    justify-content: space-between;
-}
-
-#chart-metrics span {
-    margin: 0 0.1rem 0;
-}
-
-#current-date {
-    margin-right: 2rem;
-}
-
-#chart-container {
-    height: 29rem;
-    margin-bottom: 1rem;
-}
-
-#chart-container canvas {
-    height: 80% !important;
-    width: 100% !important;
-}
-
 #price-info {
     height: 10rem; 
     display: flex;
