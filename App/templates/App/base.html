@@ -5,6 +5,7 @@
 
 <head>
     <!-- Local -->
+    <script src="{% static 'App/chart_metrics.js' %}"></script>
     <script src="{% static 'App/chart.js' %}"></script>
     <link rel="stylesheet" href="{% static 'App/styles.css' %}">
 
@@ -33,8 +34,6 @@
     {% get_item_ids as item_ids %}
     {{ item_ids|json_script:'item-ids' }}
 
-    <!-- Assign template tag result to variable to be used inside 'if' statements -->
-    {% logged_in as logged_in_result %}
 </head>
 
 <body>
@@ -47,7 +46,7 @@
 
         <div class="collapse navbar-collapse" id="navbarColor02">
             <ul class="navbar-nav mr-auto">
-                {% if logged_in_result %}
+                {% if request.user.is_authenticated %}
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'portfolio' %}">Portfolio</a>
                 </li>
@@ -64,7 +63,7 @@
         </div>
 
         <div>
-            {% if logged_in_result %}
+            {% if request.user.is_authenticated %}
                 {% get_username as username %}
                 <div id="logged-in-container">
                     <span>Logged in as: {{username}}</span>

@@ -1,14 +1,14 @@
 {% load tags %}
 
-<div id="openModal" class="modalDialog">
+<div id="{{modal_id}}" class="modalDialog">
     <div id="item-inventory">
         <div id="inventory-heading">
-            <h3>{{item_info.item_id}} Inventory</h3>
+            <h3><a href="{% url 'item' item_id %}">{{item_id}}</a> Inventory</h3>
             <a href="#close">X</a>
         </div>
         <div id="inventory-table-container">
             <table id="inventory-table">
-                <form id="add-portfolio-item-form" action="{% url 'add_portfolio_item' item_info.item_id %}" method="POST">
+                <form id="add-portfolio-item-form" action="{% url 'add_portfolio_item' item_id %}" method="POST">
                     {% csrf_token %}
                     <tr id="headings-row">
                         <th></th>
@@ -31,9 +31,9 @@
                     </tr>
                 </form>
 
-                {% for item in portfolio_item_inventory %}
+                {% for item in inventory %}
                 <tr>
-                    <form action="{% url 'update_portfolio_item' item.entry_id %}" method="POST">
+                    <form action="{% url 'update_portfolio_item' item.entry_id item_id %}" method="POST">
                         {% csrf_token %}
                         <td class="inventory-item-count">{{forloop.counter}}</td>
                         <td>{{item.form.bought_for}}</td>
@@ -42,15 +42,12 @@
                         <td><button class="update-button" type="submit">Update</button></td>
                     </form>
                     <td>
-                        <form class="delete-item-form" action="{% url 'delete_portfolio_item' item.entry_id %}" method="post">
+                        <form class="delete-item-form" action="{% url 'delete_portfolio_item' item.entry_id item_id %}" method="post">
                             {% csrf_token %}
                             <button class="delete-button" type="submit">Delete</button>
                         </form>
                     </td>
                 </tr>     
-
-
-                    
                 {% endfor %}
             </table>
         </div>

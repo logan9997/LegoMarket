@@ -47,16 +47,15 @@ class Chart:
         latest = prices_objects.latest('date')
 
         percentage_change = (earliest - latest) / earliest * -100
+        
+        if percentage_change == -0:
+            percentage_change = 0
+
         return round(percentage_change, 2)
-
-
-def get_user_id(request: HttpRequest):
-    return request.session.get('user_id', NO_USER_LOGGED_IN_VALUE)
 
 
 def get_previous_url(request: HttpRequest, default_value='home') -> str | Any:
     return request.META.get('HTTP_REFERER', default_value)
-
 
 def item_type_convert(item_type:str) -> str:
     '''

@@ -19,11 +19,6 @@ def get_username(context):
         return user.username
     return 'Guest'
 
-@register.simple_tag(takes_context=True)
-def logged_in(context: dict) -> bool:
-    request = context['request']
-    return request.user.is_authenticated
-
 
 @register.simple_tag(takes_context=True)
 def get_pages_qstring(context):
@@ -95,8 +90,11 @@ def add(num1, num2) -> int:
 
 @register.filter
 def skip_index(iterable, index:int):
-    print(iterable, index)
     return iterable[index:]
+
+@register.filter
+def get(dict:dict, key:str):
+    return dict.get(key)
 
 
 @register.filter

@@ -2,7 +2,6 @@ from django.db import models
 from config import ModelsConfig
 from django.contrib.auth.models import User
 
-
 class Item(models.Model):
     item_id = models.CharField(
         max_length=ModelsConfig.Length.ITEM_ID,

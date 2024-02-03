@@ -4,13 +4,13 @@ from django.views.generic import TemplateView
 from ..models import Portfolio
 from ..forms import PortfolioItem, chartMetricSelect
 from typing import Any
-from utils import get_previous_url, Chart
+from utils import get_previous_url, Chart, get_portfolio_item_inventory
 from django.db.models import Subquery, OuterRef, Count, F
 import json
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 
-def update_portfolio_item(request: HttpRequest, entry_id: int):
+def update_portfolio_item(request: HttpRequest, entry_id: int, item_id: str):
 
     # if not request.user.is_authenticated:
     #     return redirect(get_previous_url(request))
@@ -19,7 +19,7 @@ def update_portfolio_item(request: HttpRequest, entry_id: int):
     if request.method == 'POST':
         form = PortfolioItem(request.POST)
         if form.is_valid():
-            update_item = Portfolio.objects.get(entry_id=entry_id)
+            update_item = Portfolio.objects.get(entry_id=entry_id)            
             for k, v in form.cleaned_data.items():
                 if v == None and getattr(update_item, k) != None:
                     setattr(update_item, k, v)
@@ -27,26 +27,23 @@ def update_portfolio_item(request: HttpRequest, entry_id: int):
                     setattr(update_item, k, v)
 
             update_item.save()
+            previous_url += f'#modal_{item_id}'         
 
-    if previous_url != 'home':
-        previous_url += '#openModal'         
     return redirect(previous_url)
 
 
-def delete_portfolio_item(request: HttpRequest, entry_id: int):
+def delete_portfolio_item(request: HttpRequest, entry_id: int, item_id: str):
     previous_url = get_previous_url(request)
 
     if request.method == 'POST':
         delete_item = Portfolio.objects.get(entry_id=entry_id)
 
         user_id = request.user.id
-        if delete_item.user.user_id != user_id:
+        if delete_item.user.pk != user_id:
             return redirect(previous_url)
 
         delete_item.delete()
-
-    if previous_url != 'home':
-        previous_url += '#openModal'
+        previous_url += f'#modal_{item_id}'
     return redirect(previous_url)
 
 
@@ -55,6 +52,7 @@ def add_portfolio_item(request: HttpRequest, item_id: str):
     previous_url = get_previous_url(request)
     if user_id == -1:
         return redirect(previous_url)
+    print('previous_url-', previous_url)
 
     if request.method == 'POST':
         form = PortfolioItem(request.POST)
@@ -66,30 +64,40 @@ def add_portfolio_item(request: HttpRequest, item_id: str):
                 **data,
             )
             new_portfolio_item.save()
+            previous_url += f'#modal_{item_id}'
 
-    return redirect(f'{previous_url}#openModal')
+    print('previous_url-', previous_url)
+    return redirect(previous_url)
 
 class PortfolioView(LoginRequiredMixin, TemplateView):
     template_name = 'App/portfolio/portfolio.html'
 
     def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         self.user_id = request.user.id
+        self.portfolio_item_ids = self.get_portfolio_item_ids()
         return super().dispatch(request, *args, **kwargs)
     
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        portfolio_item_ids = self.get_portfolio_item_ids()
-        if portfolio_item_ids: 
+        if self.portfolio_item_ids: 
             context.update({
                 'portfolio_items': list(self.get_portfolio_items()),
+                'inventories': self.get_inventories(),
                 'charts': self.get_chart_datasets(),
                 'chart': self.get_chart_data_dict(self.get_portfolio_item_ids()[0], jsonify=False),
                 'forms': {
-                    'chart_metric_select': chartMetricSelect
+                    'chart_metric_select': chartMetricSelect,
+                    'portfolio_item': PortfolioItem
                 }
             })
         return context
     
+    def get_inventories(self):
+        inventories = {}
+        for item_id in self.portfolio_item_ids:
+            inventories[item_id] = get_portfolio_item_inventory(item_id, self.user_id)
+        return inventories
+
     def get_portfolio_items(self):
         '''
         Return items from Portfolio model where item_id = self.item_id
@@ -134,7 +142,7 @@ class PortfolioView(LoginRequiredMixin, TemplateView):
             'data': chart_data,
             'labels': self.chart.get_chart_data('date'),
             'metric': self.chart.get_selected_chart_metric(),
-            'metric_difference': chart_data[-1] - chart_data[0],
+            'metric_difference': chart_data[-1]  - chart_data[0],
             'metric_percentage_difference': self.chart.get_metric_percentage_change(metric)
         }
 

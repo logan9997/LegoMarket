@@ -1,0 +1,89 @@
+{% extends 'App/base.html' %}
+{% load static %}
+{% load tags %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'App/home.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<section id="trending-items" class="panel">
+    <h3>Trending</h3>
+    <div id="slider">
+        <div id="slide-track">
+            {% for item in trending_items %}
+            <div class="slide">
+                {% include 'App/home/trending_item_container.html' %}
+            </div>
+            {% endfor %}
+
+            {% for item in trending_items %}
+            <div class="slide">
+                {% include 'App/home/trending_item_container.html' %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section id="welcome-panel">
+    <div id="welcome-heading">
+        <h2>Welcome to LegoMarket</h2>
+        <span>A guide to Lego trends, market values and economics</span>
+    </div>
+
+    <div id="features">
+        <div>
+            <h3>Explore</h3>
+            <span>Discover Lego sets and minifigures to add to your collection</span>
+        </div>
+
+        <div>
+            <h3>Track</h3>
+            <span>Track the trends of market values and quantities of avaiable supply</span>
+        </div>
+
+        <div>
+            <h3>Manage</h3>
+            <span>Manage your own portfolio of Lego Items</span>
+        </div>
+    </div>
+
+    <div id="site-demonstration">
+        <img id="chart-snippet" src="{% static 'App/media/chart_snippet.png' %}" alt="">
+    </div>
+</section>
+
+<section id="right-panel" class="panel">
+    {% if logged_in_result %}
+    <div id="portfolio-summary">
+        <h3>Portfolio</h3>
+    </div>
+    {% else %}
+    <div id="login-for-portfolio">
+        <span>Not Logged in</span>
+    </div>
+    {% endif %}
+</section>
+
+{% if recently_viewed|length != 0%}
+<section id="recently-viewed-items-container">
+    <h3>Recently Viewed</h3>
+    <div id="recently-viewed-items">
+    {% for item in recently_viewed %}
+        <a class="recently-viewed-item" href="{% url 'item' item.item_id %}">
+            <span class="item-id">{{item.item_id}}</span>
+            <img src="{% static item.image_path %}" alt="">
+            <span class="item-name">{{item.item_name}}</span>
+        </a>
+    {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{% endblock %}
+
+{% for item in recently_viewed %}
+{{item}}
+{% endfor %}
