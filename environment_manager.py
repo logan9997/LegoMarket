@@ -31,7 +31,7 @@ class Manager:
                 }
         elif conn_type == 'settings':
             return {
-                'ENGINE': 'django.db.backends.postgresql_psycopg2',
+                'ENGINE': 'django.db.backends.postgresql',
                 'NAME': os.environ.get('PROD_DB_NAME'),
                 'USER': os.environ.get('PROD_DB_USER'),
                 'PASSWORD': os.environ.get('PROD_DB_PASSWORD'),
