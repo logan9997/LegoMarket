@@ -27,6 +27,7 @@ SECRET_KEY = 'django-insecure-4ne(lip=minyeknu_fx#a!m%eoc=19(vg%8s^56@#$jeipm6jy
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+DEVELOPMENT = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -129,3 +130,6 @@ django_heroku.settings(locals())
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = '/login/'
+
+# https://legomarket-5fe9b362eb30.herokuapp.com/ 
+# https://git.heroku.com/legomarket.git
