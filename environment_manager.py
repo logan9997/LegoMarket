@@ -31,12 +31,12 @@ class Manager:
                 }
         elif conn_type == 'settings':
             return {
-                'ENGINE': 'django.db.backends.postgresql',
-                'NAME': os.environ.get('DB_NAME'),
-                'USER': os.environ.get('DB_USER'),
-                'PASSWORD': os.environ.get('DB_PASSWORD'),
-                'HOST': os.environ.get('DB_HOST'),
-                'PORT': os.environ.get('DB_PORT'),
+                'ENGINE': 'django.db.backends.postgresql_psycopg2',
+                'NAME': os.environ.get('PROD_DB_NAME'),
+                'USER': os.environ.get('PROD_DB_USER'),
+                'PASSWORD': os.environ.get('PROD_DB_PASSWORD'),
+                'HOST': os.environ.get('PROD_DB_HOST'),
+                'PORT': os.environ.get('PROD_DB_PORT'),
             }
         else:
             raise Exception(f'Invalid conn_type - ({conn_type}). conn_type must equal "psycopg2" or "settings"') 

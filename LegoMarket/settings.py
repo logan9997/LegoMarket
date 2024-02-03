@@ -81,6 +81,7 @@ WSGI_APPLICATION = 'LegoMarket.wsgi.application'
 DATABASES = {
     'default': Manager.get_database_credentails('settings')
 }
+print(DATABASES)
 
 
 # Password validation
