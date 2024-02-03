@@ -15,11 +15,11 @@ class Manager:
         if conn_type == 'psycopg2':
             if DEVELOPMENT:
                 return {
-                    'dbname': os.environ.get('DB_NAME'),
-                    'user': os.environ.get('DB_USER'),
-                    'password': os.environ.get('DB_PASSWORD'),
-                    'host': os.environ.get('DB_HOST'),
-                    'port': os.environ.get('DB_PORT'),
+                    'dbname': os.environ.get('PROD_DB_NAME'),
+                    'user': os.environ.get('PROD_DB_USER'),
+                    'password': os.environ.get('PROD_DB_PASSWORD'),
+                    'host': os.environ.get('PROD_DB_HOST'),
+                    'port': os.environ.get('PROD_DB_PORT'),
                 }
             else:
                 return {
