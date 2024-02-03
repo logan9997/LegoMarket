@@ -24,10 +24,10 @@ class Manager:
             else:
                 return {
                     'dbname': os.environ.get('PROD_DB_NAME'),
-                    'user': os.environ.get('PROD_DB_NAME'),
-                    'password': os.environ.get('PROD_DB_NAME'),
-                    'host': os.environ.get('PROD_DB_NAME'),
-                    'port': os.environ.get('PROD_DB_NAME'),                
+                    'user': os.environ.get('PROD_DB_USER'),
+                    'password': os.environ.get('PROD_DB_PASSWORD'),
+                    'host': os.environ.get('PROD_DB_HOST'),
+                    'port': os.environ.get('PROD_DB_PORT'),                
                 }
         elif conn_type == 'settings':
             return {
