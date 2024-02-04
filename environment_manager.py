@@ -6,40 +6,29 @@ class Manager:
     load_dotenv()
 
     def get_database_credentails(conn_type:str) -> dict[str, str]:
-        from LegoMarket.settings import DEVELOPMENT 
+        from LegoMarket.settings import PRODUCTION 
         '''
         Return dict for database connection credentials for either django 
         settings or for psycopg2.connect kwargs
         - conn_type: str - "psycopg2" / "settings"
         '''
+        production_label = ''
+        if PRODUCTION:
+            production_label = 'PROD_'
+
+        values = ['DB_NAME', 'DB_USER', 'DB_PASSWORD', 'DB_HOST', 'DB_PORT']
         if conn_type == 'psycopg2':
-            if DEVELOPMENT:
-                return {
-                    'dbname': os.environ.get('PROD_DB_NAME'),
-                    'user': os.environ.get('PROD_DB_USER'),
-                    'password': os.environ.get('PROD_DB_PASSWORD'),
-                    'host': os.environ.get('PROD_DB_HOST'),
-                    'port': os.environ.get('PROD_DB_PORT'),
-                }
-            else:
-                return {
-                    'dbname': os.environ.get('PROD_DB_NAME'),
-                    'user': os.environ.get('PROD_DB_USER'),
-                    'password': os.environ.get('PROD_DB_PASSWORD'),
-                    'host': os.environ.get('PROD_DB_HOST'),
-                    'port': os.environ.get('PROD_DB_PORT'),                
-                }
-        elif conn_type == 'settings':
-            return {
-                'ENGINE': 'django.db.backends.postgresql',
-                'NAME': os.environ.get('PROD_DB_NAME'),
-                'USER': os.environ.get('PROD_DB_USER'),
-                'PASSWORD': os.environ.get('PROD_DB_PASSWORD'),
-                'HOST': os.environ.get('PROD_DB_HOST'),
-                'PORT': os.environ.get('PROD_DB_PORT'),
-            }
+            keys = ['dbname', 'user', 'password', 'host', 'port']
         else:
-            raise Exception(f'Invalid conn_type - ({conn_type}). conn_type must equal "psycopg2" or "settings"') 
+            keys = ['NAME', 'USER', 'PASSWORD', 'HOST', 'PORT']
+
+        credentials = {}
+        for k, v in zip(keys, values):
+            credentials[k] = os.environ.get(production_label + v)
+
+        if conn_type == 'settings':
+            credentials['ENGINE'] = 'django.db.backends.postgresql'
+        return credentials
         
     def get_oauth_credentials() -> dict[str, str]:
         return {
