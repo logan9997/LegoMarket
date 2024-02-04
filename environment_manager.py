@@ -18,7 +18,35 @@ class Manager:
 
         values = ['DB_NAME', 'DB_USER', 'DB_PASSWORD', 'DB_HOST', 'DB_PORT']
         if conn_type == 'psycopg2':
+<<<<<<< HEAD
             keys = ['dbname', 'user', 'password', 'host', 'port']
+=======
+            if DEVELOPMENT:
+                return {
+                    'dbname': os.environ.get('DB_NAME'),
+                    'user': os.environ.get('DB_USER'),
+                    'password': os.environ.get('DB_PASSWORD'),
+                    'host': os.environ.get('DB_HOST'),
+                    'port': os.environ.get('DB_PORT'),
+                }
+            else:
+                return {
+                    'dbname': os.environ.get('PROD_DB_NAME'),
+                    'user': os.environ.get('PROD_DB_USER'),
+                    'password': os.environ.get('PROD_DB_PASSWORD'),
+                    'host': os.environ.get('PROD_DB_HOST'),
+                    'port': os.environ.get('PROD_DB_PORT'),                
+                }
+        elif conn_type == 'settings':
+            return {
+                'ENGINE': 'django.db.backends.postgresql',
+                'NAME': os.environ.get('DB_NAME'),
+                'USER': os.environ.get('DB_USER'),
+                'PASSWORD': os.environ.get('DB_PASSWORD'),
+                'HOST': os.environ.get('DB_HOST'),
+                'PORT': os.environ.get('DB_PORT'),
+            }
+>>>>>>> parent of 8d1808fd (Revert ".")
         else:
             keys = ['NAME', 'USER', 'PASSWORD', 'HOST', 'PORT']
 
